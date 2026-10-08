@@ -412,8 +412,17 @@ export interface components {
                 "application/problem+json": components["schemas"]["Problem"];
             };
         };
-        /** @description Invalid request body or a skill that cannot be estimated */
+        /** @description Invalid request parameters or body, or a skill that cannot be estimated */
         ValidationError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["Problem"];
+            };
+        };
+        /** @description The warehouse file is missing or cannot be opened; /api/v1/health reports warehouse unavailable */
+        ServiceUnavailable: {
             headers: {
                 [name: string]: unknown;
             };
@@ -472,6 +481,7 @@ export interface operations {
                     "application/json": components["schemas"]["ExtractInfo"];
                 };
             };
+            503: components["responses"]["ServiceUnavailable"];
         };
     };
     listClasses: {
@@ -492,6 +502,7 @@ export interface operations {
                     "application/json": components["schemas"]["ClassSummary"][];
                 };
             };
+            503: components["responses"]["ServiceUnavailable"];
         };
     };
     listClassSkills: {
@@ -519,6 +530,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+            503: components["responses"]["ServiceUnavailable"];
         };
     };
     getSkill: {
@@ -545,6 +558,8 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+            503: components["responses"]["ServiceUnavailable"];
         };
     };
     estimateDamage: {
@@ -596,6 +611,7 @@ export interface operations {
             };
             404: components["responses"]["NotFound"];
             422: components["responses"]["ValidationError"];
+            503: components["responses"]["ServiceUnavailable"];
         };
     };
     getDataQuality: {
@@ -616,6 +632,7 @@ export interface operations {
                     "application/json": components["schemas"]["DataQualityReport"];
                 };
             };
+            503: components["responses"]["ServiceUnavailable"];
         };
     };
     listDataQualityIssues: {
@@ -642,6 +659,8 @@ export interface operations {
                     "application/json": components["schemas"]["DataQualityIssuePage"];
                 };
             };
+            422: components["responses"]["ValidationError"];
+            503: components["responses"]["ServiceUnavailable"];
         };
     };
 }
