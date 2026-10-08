@@ -23,6 +23,13 @@ describe('routes', () => {
     expect(await screen.findByRole('heading', { name: 'Wave Orb III' })).toBeInTheDocument()
   })
 
+  it('shows the data quality page', async () => {
+    renderRoutes(routes, { route: '/data-quality' })
+
+    expect(screen.getByRole('heading', { name: 'Data quality' })).toBeInTheDocument()
+    expect(await screen.findByRole('table', { name: 'Issues' })).toBeInTheDocument()
+  })
+
   it('shows the not found page inside the layout for an unknown url', async () => {
     renderRoutes(routes, { route: '/nowhere' })
 
