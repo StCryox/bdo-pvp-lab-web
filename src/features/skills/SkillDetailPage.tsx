@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router'
 import { useApiClient } from '../../api/apiContext'
 import { skillQuery } from '../../api/queries'
@@ -8,19 +7,12 @@ import { ErrorState } from '../../components/ErrorState'
 import { Loading } from '../../components/Loading'
 import { formatNumber, formatPercent, formatSeconds } from '../../format'
 import { NotFoundPage } from '../not-found/NotFoundPage'
+import { DamageEstimator } from './DamageEstimator'
 import { DqStatusBadge } from './DqStatusBadge'
+import { Fact } from './Fact'
 import { specialAttacks } from './specialAttacks'
 
 type SkillDetail = components['schemas']['SkillDetail']
-
-function Fact({ term, children }: { term: string; children: ReactNode }) {
-  return (
-    <div>
-      <dt className="text-xs text-zinc-500">{term}</dt>
-      <dd className="tabular-nums">{children}</dd>
-    </div>
-  )
-}
 
 function SkillFacts({ skill }: { skill: SkillDetail }) {
   return (
@@ -115,6 +107,7 @@ function SkillContent({ classSlug, skillId }: { classSlug: string; skillId: numb
           These CC only apply in PvE: {data.pve_only_cc.join(', ')}
         </p>
       )}
+      <DamageEstimator key={`${classSlug}/${skillId}`} classSlug={classSlug} skillId={skillId} />
     </>
   )
 }

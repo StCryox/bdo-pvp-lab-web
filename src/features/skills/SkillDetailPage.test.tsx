@@ -70,6 +70,14 @@ describe('SkillDetailPage', () => {
     )
   })
 
+  it('estimates the damage of this skill', async () => {
+    const { user } = renderPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Estimate damage' }))
+
+    expect(await screen.findByText('2706.32')).toBeInTheDocument()
+  })
+
   it('flags a clause without PvP reduction', async () => {
     renderPage('/classes/mystic/skills/2794')
 
