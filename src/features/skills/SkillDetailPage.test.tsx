@@ -96,6 +96,25 @@ describe('SkillDetailPage', () => {
     expect(screen.queryByText(/only apply in PvE/)).not.toBeInTheDocument()
   })
 
+  it('marks a selector-alias clause and explains it', async () => {
+    renderPage('/classes/mystic/skills/2794')
+
+    await screen.findByRole('table', { name: 'Damage clauses' })
+    const rows = within(screen.getByRole('table', { name: 'Damage clauses' })).getAllByRole('row')
+    expect(within(rows[3] as HTMLElement).getByText('Selector alias')).toBeInTheDocument()
+    expect(within(rows[1] as HTMLElement).queryByText('Selector alias')).not.toBeInTheDocument()
+    expect(
+      screen.getByText(/same script statement reached through another selector/),
+    ).toHaveTextContent('excluded from the damage sums and from the estimate')
+  })
+
+  it('does not explain selector aliases when the skill has none', async () => {
+    renderPage()
+
+    await screen.findByRole('table', { name: 'Damage clauses' })
+    expect(screen.queryByText(/another selector/)).not.toBeInTheDocument()
+  })
+
   it('says so when the skill has no damage clause', async () => {
     const seethe = {
       class_slug: 'mystic',

@@ -6,6 +6,8 @@ import { formatNumber, formatPercent } from '../../format'
 import { Fact } from './Fact'
 
 type DamageEstimate = components['schemas']['DamageEstimate']
+type DamageClause = components['schemas']['DamageClause']
+type ClauseEstimate = components['schemas']['ClauseEstimate']
 type TargetState = components['schemas']['Situation']['target_state']
 
 const inputClass =
@@ -74,7 +76,22 @@ function toRequest(classSlug: string, skillId: number, form: FormData): DamageEs
   }
 }
 
-function EstimateResult({ estimate }: { estimate: DamageEstimate }) {
+const clauseKey = (clause: Pick<DamageClause, 'source_order' | 'clause_index'>) =>
+  `${clause.source_order}-${clause.clause_index}`
+
+function inclusion(clause: ClauseEstimate, aliasKeys: Set<string>): string {
+  if (clause.included) return 'Yes'
+  return aliasKeys.has(clauseKey(clause)) ? 'No (selector alias)' : 'No'
+}
+
+function EstimateResult({
+  estimate,
+  clauses,
+}: {
+  estimate: DamageEstimate
+  clauses: DamageClause[]
+}) {
+  const aliasKeys = new Set(clauses.filter((c) => c.is_selector_alias).map(clauseKey))
   return (
     <div className="space-y-4">
       <p>
@@ -115,10 +132,10 @@ function EstimateResult({ estimate }: { estimate: DamageEstimate }) {
         </thead>
         <tbody>
           {estimate.clauses.map((clause) => (
-            <tr key={clause.clause_index} className="border-b border-zinc-900">
+            <tr key={clauseKey(clause)} className="border-b border-zinc-900">
               <td className="py-2 pr-4 text-right tabular-nums">{clause.clause_index}</td>
               <td className="py-2 pr-4">{clause.clause_label}</td>
-              <td className="py-2 pr-4">{clause.included ? 'Yes' : 'No'}</td>
+              <td className="py-2 pr-4">{inclusion(clause, aliasKeys)}</td>
               <td className="py-2 text-right tabular-nums">
                 {formatNumber(clause.expected_hp_loss)}
               </td>
@@ -140,7 +157,13 @@ function EstimateResult({ estimate }: { estimate: DamageEstimate }) {
 const fieldsetClass = 'space-y-3 rounded border border-zinc-800 p-4'
 const legendClass = 'px-1 font-medium text-white'
 
-export function DamageEstimator({ classSlug, skillId }: { classSlug: string; skillId: number }) {
+interface DamageEstimatorProps {
+  classSlug: string
+  skillId: number
+  clauses: DamageClause[]
+}
+
+export function DamageEstimator({ classSlug, skillId, clauses }: DamageEstimatorProps) {
   const { mutate, data, error, isPending } = useEstimateDamage()
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -231,7 +254,7 @@ export function DamageEstimator({ classSlug, skillId }: { classSlug: string; ski
         </button>
       </form>
       {error && <ErrorState error={error} />}
-      {data && <EstimateResult estimate={data} />}
+      {data && <EstimateResult estimate={data} clauses={clauses} />}
     </section>
   )
 }

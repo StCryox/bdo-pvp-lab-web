@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { useApiClient } from '../../api/apiContext'
 import { skillQuery } from '../../api/queries'
 import type { components } from '../../api/schema'
+import { Badge } from '../../components/Badge'
 import { ErrorState } from '../../components/ErrorState'
 import { Loading } from '../../components/Loading'
 import { formatNumber, formatPercent, formatSeconds } from '../../format'
@@ -74,9 +75,19 @@ function ClausesTable({ clauses }: { clauses: SkillDetail['clauses'] }) {
         </thead>
         <tbody>
           {clauses.map((clause) => (
-            <tr key={clause.clause_index} className="border-b border-zinc-900">
+            <tr
+              key={`${clause.source_order}-${clause.clause_index}`}
+              className={`border-b border-zinc-900 ${clause.is_selector_alias ? 'text-zinc-500' : ''}`}
+            >
               <td className={numberCell}>{clause.clause_index}</td>
-              <td className="py-2 pr-4">{clause.clause_label}</td>
+              <td className="py-2 pr-4">
+                {clause.clause_label}
+                {clause.is_selector_alias && (
+                  <span className="ml-2">
+                    <Badge tone="neutral">Selector alias</Badge>
+                  </span>
+                )}
+              </td>
               <td className="py-2 pr-4 font-mono text-xs">{clause.macro}</td>
               <td className={numberCell}>{formatNumber(clause.damage_multiplier)}</td>
               <td className={numberCell}>{clause.hits}</td>
@@ -88,6 +99,12 @@ function ClausesTable({ clauses }: { clauses: SkillDetail['clauses'] }) {
           ))}
         </tbody>
       </table>
+      {clauses.some((clause) => clause.is_selector_alias) && (
+        <p className="mt-2 text-sm text-zinc-400">
+          A selector alias is the same script statement reached through another selector: it is
+          excluded from the damage sums and from the estimate.
+        </p>
+      )}
     </div>
   )
 }
@@ -107,7 +124,12 @@ function SkillContent({ classSlug, skillId }: { classSlug: string; skillId: numb
           These CC only apply in PvE: {data.pve_only_cc.join(', ')}
         </p>
       )}
-      <DamageEstimator key={`${classSlug}/${skillId}`} classSlug={classSlug} skillId={skillId} />
+      <DamageEstimator
+        key={`${classSlug}/${skillId}`}
+        classSlug={classSlug}
+        skillId={skillId}
+        clauses={data.clauses}
+      />
     </>
   )
 }

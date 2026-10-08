@@ -1,11 +1,73 @@
 import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import type { components } from '../../api/schema'
 import type { FakeResponseOverride } from '../../test/fakeFetch'
 import { renderWithProviders } from '../../test/renderWithProviders'
 import { DamageEstimator } from './DamageEstimator'
 
-const renderEstimator = (skillId = 2786, overrides: FakeResponseOverride[] = []) =>
-  renderWithProviders(<DamageEstimator classSlug="mystic" skillId={skillId} />, { overrides })
+type DamageClause = components['schemas']['DamageClause']
+
+const clause = (
+  source_order: number,
+  clause_index: number,
+  clause_label: string,
+  is_selector_alias = false,
+): DamageClause => ({
+  source_order,
+  clause_index,
+  clause_label,
+  macro: 'DAM_ATT_2',
+  damage_multiplier: 59.76,
+  hits: 2,
+  is_selector_alias,
+  pvp_kept_ratio: 0.25,
+  pvp_damage_multiplier: 29.88,
+  crit_rate: 1,
+  dq_flag: null,
+})
+
+const renderEstimator = (
+  skillId = 2786,
+  overrides: FakeResponseOverride[] = [],
+  clauses: DamageClause[] = [clause(1, 1, 'Base damage'), clause(2, 2, 'Extra damage')],
+) =>
+  renderWithProviders(<DamageEstimator classSlug="mystic" skillId={skillId} clauses={clauses} />, {
+    overrides,
+  })
+
+const estimateResponse = (
+  clauses: components['schemas']['ClauseEstimate'][],
+  warnings: string[] = [],
+) => ({
+  method: 'POST',
+  path: '/api/v1/damage/estimate',
+  status: 200,
+  body: {
+    class_slug: 'mystic',
+    skill_id: 2794,
+    skill_name: 'Wave of Light',
+    hit_rate: 1,
+    base_damage: 345,
+    damage_reduction_rate: 0.3,
+    special_attack: 'back',
+    special_multiplier: 1.2,
+    expected_crit_multiplier: 2.2,
+    pvp_modifier: 1,
+    clauses,
+    total_expected_hp_loss: 877.8,
+    warnings,
+  },
+})
+
+const clauseEstimateRows = () =>
+  within(screen.getByRole('table', { name: 'Expected HP loss per clause' }))
+    .getAllByRole('row')
+    .slice(1)
+    .map((row) =>
+      within(row)
+        .getAllByRole('cell')
+        .map((cell) => cell.textContent),
+    )
 
 const estimate = () => screen.getByRole('button', { name: 'Estimate damage' })
 
@@ -91,16 +153,8 @@ describe('DamageEstimator', () => {
 
     await user.click(estimate())
 
-    const table = await screen.findByRole('table', { name: 'Expected HP loss per clause' })
-    const rows = within(table)
-      .getAllByRole('row')
-      .slice(1)
-      .map((row) =>
-        within(row)
-          .getAllByRole('cell')
-          .map((cell) => cell.textContent),
-      )
-    expect(rows).toEqual([
+    await screen.findByRole('table', { name: 'Expected HP loss per clause' })
+    expect(clauseEstimateRows()).toEqual([
       ['1', 'Base damage', 'Yes', '1424.25'],
       ['2', 'Extra damage', 'Yes', '1282.07'],
     ])
@@ -108,32 +162,56 @@ describe('DamageEstimator', () => {
 
   it('lists the warnings of the estimate', async () => {
     const warning = 'Back attack capability is not verified in the data (BR-SPEC-01)'
-    const { user } = renderEstimator(2786, [
-      {
-        method: 'POST',
-        path: '/api/v1/damage/estimate',
-        status: 200,
-        body: {
-          class_slug: 'mystic',
-          skill_id: 2786,
-          skill_name: 'Wave Orb III',
-          hit_rate: 1,
-          base_damage: 345,
-          damage_reduction_rate: 0.3,
-          special_attack: 'back',
-          special_multiplier: 1.2,
-          expected_crit_multiplier: 2.2,
-          pvp_modifier: 1,
-          clauses: [],
-          total_expected_hp_loss: 0,
-          warnings: [warning],
-        },
-      },
-    ])
+    const { user } = renderEstimator(2794, [estimateResponse([], [warning])])
 
     await user.click(estimate())
 
     expect(await screen.findByRole('list', { name: 'Warnings' })).toHaveTextContent(warning)
+  })
+
+  it('says which excluded clauses are selector aliases', async () => {
+    const { user } = renderEstimator(
+      2794,
+      [
+        estimateResponse([
+          {
+            source_order: 1,
+            clause_index: 1,
+            clause_label: 'Base damage',
+            included: true,
+            expected_hp_loss: 877.8,
+          },
+          {
+            source_order: 2,
+            clause_index: 2,
+            clause_label: 'Extra damage',
+            included: false,
+            expected_hp_loss: 0,
+          },
+          {
+            source_order: 3,
+            clause_index: 1,
+            clause_label: 'Base damage',
+            included: false,
+            expected_hp_loss: 0,
+          },
+        ]),
+      ],
+      [
+        clause(1, 1, 'Base damage'),
+        clause(2, 2, 'Extra damage'),
+        clause(3, 1, 'Base damage', true),
+      ],
+    )
+
+    await user.click(estimate())
+
+    await screen.findByRole('table', { name: 'Expected HP loss per clause' })
+    expect(clauseEstimateRows()).toEqual([
+      ['1', 'Base damage', 'Yes', '877.80'],
+      ['2', 'Extra damage', 'No', '0.00'],
+      ['1', 'Base damage', 'No (selector alias)', '0.00'],
+    ])
   })
 
   it('shows the 422 problem detail inline', async () => {
