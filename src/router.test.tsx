@@ -4,6 +4,13 @@ import { routes } from './router'
 import { renderRoutes } from './test/renderWithProviders'
 
 describe('routes', () => {
+  it('shows the classes page at the root', async () => {
+    renderRoutes(routes, { route: '/' })
+
+    expect(screen.getByRole('heading', { name: 'Classes' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: /Mystic/ })).toBeInTheDocument()
+  })
+
   it('shows the not found page inside the layout for an unknown url', async () => {
     renderRoutes(routes, { route: '/nowhere' })
 
