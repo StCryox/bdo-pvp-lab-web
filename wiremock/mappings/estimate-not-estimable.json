@@ -5,7 +5,16 @@
     "urlPath": "/api/v1/damage/estimate",
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.situation.pvp_modifier > 1.1 || @.attacker.ap < 0)]"
+        "matchesJsonPath": {
+          "expression": "$.class_slug",
+          "equalTo": "mystic"
+        }
+      },
+      {
+        "matchesJsonPath": {
+          "expression": "$.skill_id",
+          "equalTo": "2722"
+        }
       }
     ]
   },
@@ -14,7 +23,7 @@
     "headers": {
       "Content-Type": "application/problem+json"
     },
-    "bodyFileName": "problem-invalid-estimate.json"
+    "bodyFileName": "problem-skill-not-estimable.json"
   },
   "metadata": {
     "operationId": "estimateDamage"

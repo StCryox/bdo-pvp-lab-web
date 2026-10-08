@@ -5,7 +5,16 @@
     "urlPath": "/api/v1/damage/estimate",
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.class_slug == 'mystic' && @.skill_id == 2786)]"
+        "matchesJsonPath": {
+          "expression": "$.class_slug",
+          "equalTo": "mystic"
+        }
+      },
+      {
+        "matchesJsonPath": {
+          "expression": "$.skill_id",
+          "equalTo": "2786"
+        }
       }
     ]
   },

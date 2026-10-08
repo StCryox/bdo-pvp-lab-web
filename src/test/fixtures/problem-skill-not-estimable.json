@@ -1,0 +1,7 @@
+{
+  "type": "https://bdo-pvp-lab.local/problems/skill-not-estimable",
+  "title": "Skill cannot be estimated",
+  "status": 422,
+  "detail": "Skill 2722 of class mystic has no damage clause",
+  "instance": "/api/v1/damage/estimate"
+}

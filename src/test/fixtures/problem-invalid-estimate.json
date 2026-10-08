@@ -1,7 +1,0 @@
-{
-  "type": "https://bdo-pvp-lab.local/problems/validation-error",
-  "title": "Invalid estimate request",
-  "status": 422,
-  "detail": "situation.pvp_modifier: Input should be less than or equal to 1.1",
-  "instance": "/api/v1/damage/estimate"
-}

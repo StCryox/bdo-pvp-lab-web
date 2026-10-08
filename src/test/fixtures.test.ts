@@ -2,12 +2,7 @@ import Ajv2020 from 'ajv/dist/2020'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
 import contractSource from '../../../contracts/openapi.yaml?raw'
-
-interface Mapping {
-  request: { method: string }
-  response: { status: number; bodyFileName?: string }
-  metadata: { operationId: string }
-}
+import type { WireMockMapping } from './fakeFetch'
 
 interface Operation {
   operationId: string
@@ -20,7 +15,7 @@ const contract = parse(contractSource) as {
 }
 
 const fixtures = import.meta.glob<unknown>('./fixtures/*.json', { eager: true, import: 'default' })
-const mappings = import.meta.glob<Mapping>('../../wiremock/mappings/*.json', {
+const mappings = import.meta.glob<WireMockMapping>('../../wiremock/mappings/*.json', {
   eager: true,
   import: 'default',
 })

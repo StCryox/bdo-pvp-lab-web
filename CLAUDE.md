@@ -48,6 +48,7 @@ web/src/
 └─ test/
    ├─ setup.ts
    ├─ renderWithProviders.tsx   # QueryClient (retry false) + Router + ApiProvider with fake fetch
+   ├─ fakeFetch.ts              # matches requests against the WireMock mappings, serves their fixtures
    └─ fixtures/                 # JSON responses, shared with WireMock (__files)
 web/wiremock/mappings/          # one mapping per endpoint, bodyFileName → fixtures
 ```
@@ -56,8 +57,8 @@ Each component has a `*.test.tsx` next to it.
 ## One set of fixtures for tests and WireMock
 - `src/test/fixtures/*.json` contain realistic responses that **validate against the contract** (use the contract examples: mystic, Wave Orb III 2786...).
 - WireMock mappings serve them (`"bodyFileName": "skill-2786.json"`), so the dev server and the tests use the same data.
-- Unit/integration tests never call WireMock or any network: `renderWithProviders` injects a fake `fetch` that routes URLs to the same fixture files.
-- Add one mapping per error case used by the UI: unknown skill → 404 problem+json, invalid estimate → 422.
+- Unit/integration tests never call WireMock or any network: `renderWithProviders` injects a fake `fetch` that reads the WireMock mappings (method, `urlPath`/`urlPathPattern`, `queryParameters.equalTo`, `bodyPatterns.matchesJsonPath` with a dotted `expression` + `equalTo`, `priority`) and serves the same fixture files. Keep mappings within that subset. Tests pass `overrides` for one-off responses.
+- Add one mapping per error case used by the UI: unknown skill → 404 problem+json, skill that cannot be estimated (2722, no damage) → 422.
 - Each mapping carries `"metadata": { "operationId": ... }`; `src/test/fixtures.test.ts` validates every served body against that operation's response schema in the contract.
 
 ## Routes and pages
