@@ -1,7 +1,20 @@
-export default function App() {
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { type DataRouter, RouterProvider } from 'react-router'
+import { ApiProvider } from './api/ApiProvider'
+import type { ApiClient } from './api/client'
+
+interface AppProps {
+  queryClient: QueryClient
+  apiClient: ApiClient
+  router: DataRouter
+}
+
+export default function App({ queryClient, apiClient, router }: AppProps) {
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <h1 className="text-2xl font-semibold">BDO PvP Lab</h1>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <ApiProvider client={apiClient}>
+        <RouterProvider router={router} />
+      </ApiProvider>
+    </QueryClientProvider>
   )
 }

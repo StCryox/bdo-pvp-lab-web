@@ -52,8 +52,9 @@ A small, clean consumer of the data product: browse classes and skills, see PvP 
 ## Layout
 ```
 src/
-├─ main.tsx
-├─ router.tsx
+├─ main.tsx              # composition root: builds the QueryClient, API client and browser router
+├─ App.tsx               # providers (QueryClient, ApiProvider, RouterProvider), all injected
+├─ router.tsx            # route tree: Layout with the pages as children
 ├─ api/
 │  ├─ schema.d.ts         # generated, do not edit
 │  ├─ client.ts           # createClient<paths>({ baseUrl, fetch })
@@ -62,11 +63,12 @@ src/
 ├─ features/
 │  ├─ classes/ClassesPage.tsx
 │  ├─ skills/ClassSkillsPage.tsx  SkillDetailPage.tsx  DamageEstimator.tsx
-│  └─ data-quality/DataQualityPage.tsx
+│  ├─ data-quality/DataQualityPage.tsx
+│  └─ not-found/NotFoundPage.tsx
 ├─ components/            # only what is shared by 2+ features: Layout, ErrorState, Loading, Badge
 └─ test/
    ├─ setup.ts
-   ├─ renderWithProviders.tsx   # QueryClient (retry false) + Router + ApiProvider with fake fetch
+   ├─ renderWithProviders.tsx   # renders through App: QueryClient (retry false) + memory router + fake fetch; renderRoutes for a route tree
    ├─ fakeFetch.ts              # matches requests against the WireMock mappings, serves their fixtures
    └─ fixtures/                 # JSON responses, shared with WireMock (__files)
 wiremock/mappings/          # one mapping per endpoint, bodyFileName → fixtures

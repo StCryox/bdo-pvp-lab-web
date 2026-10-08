@@ -4,7 +4,7 @@ import { useParams } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import { useApiClient } from '../api/apiContext'
 import { classesQuery } from '../api/queries'
-import { renderWithProviders } from './renderWithProviders'
+import { renderRoutes, renderWithProviders } from './renderWithProviders'
 
 function ClassCount() {
   const { data, error } = useQuery(classesQuery(useApiClient()))
@@ -52,5 +52,13 @@ describe('renderWithProviders', () => {
     })
 
     expect(router.state.location.search).toBe('?spec=Awakening')
+  })
+
+  it('renders a whole route tree at the given url', () => {
+    renderRoutes([{ path: '/classes/:classSlug', element: <SlugEcho /> }], {
+      route: '/classes/mystic',
+    })
+
+    expect(screen.getByText('slug: mystic')).toBeInTheDocument()
   })
 })
