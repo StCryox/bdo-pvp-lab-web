@@ -74,7 +74,7 @@
     "can_air_attack": true,
     "max_targets": 10,
     "pvp_cc": [],
-    "clause_count": 2,
+    "clause_count": 3,
     "total_damage_multiplier": 286.5,
     "pvp_damage_multiplier": 29.88,
     "dq_status": "warning"

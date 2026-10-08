@@ -9,33 +9,50 @@
   "can_air_attack": true,
   "max_targets": 10,
   "pvp_cc": [],
-  "clause_count": 2,
+  "clause_count": 3,
   "total_damage_multiplier": 286.5,
   "pvp_damage_multiplier": 29.88,
   "dq_status": "warning",
   "pve_only_cc": [],
   "clauses": [
     {
+      "source_order": 1,
       "clause_index": 1,
       "clause_label": "Base damage",
       "macro": "DAM_ATT_2",
       "damage_multiplier": 59.76,
       "hits": 2,
+      "is_selector_alias": false,
       "pvp_kept_ratio": 0.25,
       "pvp_damage_multiplier": 29.88,
       "crit_rate": 1.0,
       "dq_flag": null
     },
     {
+      "source_order": 2,
       "clause_index": 2,
       "clause_label": "Extra damage",
       "macro": "DAM_ATT_1",
       "damage_multiplier": 83.49,
       "hits": 2,
+      "is_selector_alias": false,
       "pvp_kept_ratio": null,
       "pvp_damage_multiplier": null,
       "crit_rate": 1.0,
       "dq_flag": "no_pvp_reduction"
+    },
+    {
+      "source_order": 3,
+      "clause_index": 1,
+      "clause_label": "Base damage",
+      "macro": "DAM_ATT_2",
+      "damage_multiplier": 59.76,
+      "hits": 2,
+      "is_selector_alias": true,
+      "pvp_kept_ratio": 0.25,
+      "pvp_damage_multiplier": 29.88,
+      "crit_rate": 1.0,
+      "dq_flag": null
     }
   ]
 }

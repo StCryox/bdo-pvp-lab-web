@@ -11,12 +11,14 @@
   "pvp_modifier": 1.0,
   "clauses": [
     {
+      "source_order": 1,
       "clause_index": 1,
       "clause_label": "Base damage",
       "included": true,
       "expected_hp_loss": 1424.25
     },
     {
+      "source_order": 2,
       "clause_index": 2,
       "clause_label": "Extra damage",
       "included": true,

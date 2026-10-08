@@ -16,22 +16,26 @@
   "pve_only_cc": ["bound"],
   "clauses": [
     {
+      "source_order": 1,
       "clause_index": 1,
       "clause_label": "Base damage",
       "macro": "DAM_ATT_2",
       "damage_multiplier": 96.98,
       "hits": 2,
+      "is_selector_alias": false,
       "pvp_kept_ratio": 0.2137,
       "pvp_damage_multiplier": 41.45,
       "crit_rate": 1.0,
       "dq_flag": null
     },
     {
+      "source_order": 2,
       "clause_index": 2,
       "clause_label": "Extra damage",
       "macro": "DAM_ATT_2",
       "damage_multiplier": 73.39,
       "hits": 2,
+      "is_selector_alias": false,
       "pvp_kept_ratio": 0.2542,
       "pvp_damage_multiplier": 37.31,
       "crit_rate": 1.0,
