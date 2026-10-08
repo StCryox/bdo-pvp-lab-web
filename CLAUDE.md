@@ -6,8 +6,8 @@ Local rules for the React app. Read the root `CLAUDE.md` and `contracts/openapi.
 A small, clean consumer of the data product: browse classes and skills, see PvP damage per skill, estimate the damage of a skill on a target, and see the data quality of the extract. It must work **before the API exists**, against WireMock stubs built from the contract.
 
 ## Stack
-- **Vite**, **React 19**, **TypeScript** (strict, `noUncheckedIndexedAccess`), **npm**.
-- **React Compiler** via `babel-plugin-react-compiler` in `@vitejs/plugin-react` (`babel.plugins`). Consequence: **no manual `useMemo`, `useCallback` or `React.memo`**. Write plain components; the compiler memoizes. Follow the Rules of React (pure render, no mutation of props/state, hooks at top level).
+- **Vite**, **React 19**, **TypeScript** 5.9 (strict, `noUncheckedIndexedAccess`; pinned below 6 because `openapi-typescript` 7 requires TS 5), **npm**.
+- **React Compiler** via `babel-plugin-react-compiler`: `@vitejs/plugin-react` v6 has no `babel` option, so `vite.config.ts` uses `@rolldown/plugin-babel` with `reactCompilerPreset()`. Consequence: **no manual `useMemo`, `useCallback` or `React.memo`**. Write plain components; the compiler memoizes. Follow the Rules of React (pure render, no mutation of props/state, hooks at top level).
 - **React Router** (`react-router` v7, `createBrowserRouter` + `RouterProvider`, library/data mode, no framework mode).
 - **TanStack Query** v5 for all server state. No `useEffect` + `fetch`.
 - **Tailwind CSS** v4 via `@tailwindcss/vite`. No component library.
