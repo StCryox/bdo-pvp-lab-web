@@ -6,8 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **BDO PvP Lab (web)**: the React app of BDO PvP Lab, a small data product built on real Black Desert Online skill data. The backend (data pipeline + FastAPI) lives in a separate repository, `bdo-pvp-lab-api`, expected as a sibling folder (`../bdo-pvp-lab-api`). This app is one consumer of that data product: it only talks to the API.
 
-The project is a showcase for a data-engineering interview (Fri 9 Oct 2026, 14:00). Task brief: `docs/agents/30-web.md`.
-
 ## Contract
 
 `contracts/openapi.yaml` is a **vendored copy**: the backend repository owns the source of truth. Never edit it here. To pick up a contract change: `npm run sync:contract` (copies it from `${BDO_API_REPO:-../bdo-pvp-lab-api}`), then `npm run gen:api`, then adapt the app, in separate commits. The fixtures test validates every fixture against this copy.
@@ -117,7 +115,7 @@ Each component has a `*.test.tsx` next to it.
   - **I**nterface Segregation: prefer small, specific interfaces.
   - **D**ependency Inversion: depend on abstractions, not concretions. Components receive their dependencies; they don't build them.
 - Do not over-engineer. Add the minimum necessary for the feature; refactor when the need materializes.
-- No premature abstraction: no helper, interface or util for a single usage. (Exception: the API's ports, because the hexagonal boundary is the point of the exercise.)
+- No premature abstraction: no helper, interface or util for a single usage. (Exception: the API's ports, because the hexagonal boundary is a deliberate design choice.)
 - No error handling for impossible cases.
 
 ### Tests
