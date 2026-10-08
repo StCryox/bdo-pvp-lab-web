@@ -4,7 +4,7 @@ The React app of BDO PvP Lab: browse Black Desert Online classes and skills, see
 
 The data (pipeline and API) lives in [`bdo-pvp-lab-api`](https://github.com/StCryox/bdo-pvp-lab-api). This app only talks to that API, through its OpenAPI contract, and runs without it against WireMock stubs.
 
-> **Status:** work in progress. The API client, fixtures, layout and routing are in place; the pages are being built.
+> **Status:** work in progress. Every page works against the WireMock stubs; integration with the real API is pending.
 
 ## Features
 
@@ -73,6 +73,7 @@ src/
 ├─ main.tsx         # builds the query client, API client and router
 ├─ App.tsx          # providers
 ├─ router.tsx       # routes
+├─ format.ts        # number, percent and duration display
 ├─ api/             # generated schema, typed client, query options
 ├─ components/      # layout and shared UI
 ├─ features/        # one folder per page

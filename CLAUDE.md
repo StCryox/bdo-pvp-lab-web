@@ -53,6 +53,7 @@ src/
 ├─ main.tsx              # composition root: builds the QueryClient, API client and browser router
 ├─ App.tsx               # providers (QueryClient, ApiProvider, RouterProvider), all injected
 ├─ router.tsx            # route tree: Layout with the pages as children
+├─ format.ts             # display of multipliers (2 decimals), ratios (%) and durations (s); "—" for null
 ├─ api/
 │  ├─ schema.d.ts         # generated, do not edit
 │  ├─ client.ts           # createClient<paths>({ baseUrl, fetch })
@@ -61,6 +62,7 @@ src/
 ├─ features/
 │  ├─ classes/ClassesPage.tsx
 │  ├─ skills/ClassSkillsPage.tsx  SkillDetailPage.tsx  DamageEstimator.tsx
+│  │         DqStatusBadge.tsx  Fact.tsx  specialAttacks.ts   # shared by the skills pages
 │  ├─ data-quality/DataQualityPage.tsx
 │  └─ not-found/NotFoundPage.tsx
 ├─ components/            # only what is shared by 2+ features: Layout, ErrorState, Loading, Badge
