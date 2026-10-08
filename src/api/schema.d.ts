@@ -226,12 +226,12 @@ export interface components {
             /** @example 2 */
             clause_count: number;
             /**
-             * @description Sum of damage_multiplier × hits over clauses (PvE)
+             * @description Sum of damage_multiplier × hits over clauses, selector aliases excluded (PvE)
              * @example 340.74
              */
             total_damage_multiplier?: number | null;
             /**
-             * @description Sum of damage_multiplier × hits × pvp_kept_ratio over clauses with a PvP reduction
+             * @description Sum of damage_multiplier × hits × pvp_kept_ratio over clauses with a PvP reduction, selector aliases excluded
              * @example 78.76
              */
             pvp_damage_multiplier?: number | null;
@@ -246,7 +246,13 @@ export interface components {
             pve_only_cc: string[];
             clauses: components["schemas"]["DamageClause"][];
         };
+        /** @description A clause is identified by (class_slug, skill_id, source_order, clause_index); clause_index alone can repeat within a skill. */
         DamageClause: {
+            /**
+             * @description Statement index of the clause in the skill script (BR-PARSE-02)
+             * @example 2
+             */
+            source_order: number;
             /** @example 1 */
             clause_index: number;
             /** @example Base damage */
@@ -260,6 +266,11 @@ export interface components {
             damage_multiplier: number;
             /** @example 2 */
             hits: number;
+            /**
+             * @description Same script statement reached through another selector; excluded from sums and from the estimate (BR-DMG-13)
+             * @example false
+             */
+            is_selector_alias: boolean;
             /** @example 0.2137 */
             pvp_kept_ratio?: number | null;
             /** @example 41.45 */
@@ -323,9 +334,10 @@ export interface components {
             situation: components["schemas"]["Situation"];
         };
         ClauseEstimate: {
+            source_order: number;
             clause_index: number;
             clause_label: string;
-            /** @description false when the clause has no PvP reduction (BR-PVP-03) */
+            /** @description false when the clause is a selector alias (BR-DMG-13) or has no PvP reduction (BR-PVP-03, BR-PVP-04) */
             included: boolean;
             expected_hp_loss: number;
         };
