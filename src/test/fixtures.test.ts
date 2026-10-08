@@ -1,7 +1,7 @@
 import Ajv2020 from 'ajv/dist/2020'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
-import contractSource from '../../../contracts/openapi.yaml?raw'
+import contractSource from '../../contracts/openapi.yaml?raw'
 import type { WireMockMapping } from './fakeFetch'
 
 interface Operation {

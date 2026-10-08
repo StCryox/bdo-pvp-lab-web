@@ -1,0 +1,425 @@
+openapi: 3.1.0
+info:
+  title: BDO PvP Lab API
+  version: 1.0.0
+  description: |
+    Read-only access to the BDO skill data product (dbt marts on DuckDB) and a PvP damage estimator.
+    Contract-first: this file is the source of truth for `api/` (implementation) and `web/` (types + WireMock stubs).
+    Business rules referenced as BR-xx are in docs/BUSINESS_RULES.md.
+servers:
+  - url: http://localhost:8000
+    description: Local API
+  - url: http://localhost:8080
+    description: WireMock (web development)
+tags:
+  - name: meta
+  - name: classes
+  - name: skills
+  - name: damage
+  - name: data-quality
+
+paths:
+  /api/v1/health:
+    get:
+      tags: [meta]
+      operationId: getHealth
+      summary: Liveness and warehouse availability
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+
+  /api/v1/meta:
+    get:
+      tags: [meta]
+      operationId: getMeta
+      summary: Which extract and game builds the data comes from
+      responses:
+        "200":
+          description: Extract information
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExtractInfo" }
+
+  /api/v1/classes:
+    get:
+      tags: [classes]
+      operationId: listClasses
+      summary: All classes with their specs and number of skills
+      responses:
+        "200":
+          description: Classes sorted by class_name
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ClassSummary" }
+
+  /api/v1/classes/{class_slug}/skills:
+    get:
+      tags: [skills]
+      operationId: listClassSkills
+      summary: Skills of a class, optionally filtered by spec
+      parameters:
+        - $ref: "#/components/parameters/ClassSlug"
+        - name: spec
+          in: query
+          required: false
+          description: Catalog build label (e.g. "Awakening", "Succession", "Single build").
+          schema: { type: string }
+      responses:
+        "200":
+          description: Skills sorted by pvp_damage_multiplier descending (nulls last), then skill_name
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SkillSummary" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/classes/{class_slug}/skills/{skill_id}:
+    get:
+      tags: [skills]
+      operationId: getSkill
+      summary: Skill detail with its damage clauses
+      parameters:
+        - $ref: "#/components/parameters/ClassSlug"
+        - $ref: "#/components/parameters/SkillId"
+      responses:
+        "200":
+          description: Skill detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SkillDetail" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/damage/estimate:
+    post:
+      tags: [damage]
+      operationId: estimateDamage
+      summary: Expected HP loss of one cast of a skill on one target (BR-DMG-*)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DamageEstimateRequest" }
+            example:
+              class_slug: mystic
+              skill_id: 2786
+              attacker: { ap: 1085, accuracy: 1353, crit_damage_bonus: 0.2, back_attack_bonus: 0, down_attack_bonus: 0, air_attack_bonus: 0 }
+              defender: { dr: 740, evasion: 1197, super_armor_dr_rate: 0.10 }
+              situation: { target_state: downed, from_behind: false, target_in_super_armor: false, pvp_modifier: 1.0 }
+      responses:
+        "200":
+          description: Estimate with full breakdown
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DamageEstimate" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+
+  /api/v1/data-quality:
+    get:
+      tags: [data-quality]
+      operationId: getDataQuality
+      summary: Data-quality summary of the current extract
+      responses:
+        "200":
+          description: Metrics and issue counts per rule
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataQualityReport" }
+
+  /api/v1/data-quality/issues:
+    get:
+      tags: [data-quality]
+      operationId: listDataQualityIssues
+      summary: Data-quality issues, paginated
+      parameters:
+        - name: rule
+          in: query
+          required: false
+          schema: { type: string }
+        - name: severity
+          in: query
+          required: false
+          schema: { $ref: "#/components/schemas/Severity" }
+        - name: class_slug
+          in: query
+          required: false
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - name: offset
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: A page of issues
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataQualityIssuePage" }
+
+components:
+  parameters:
+    ClassSlug:
+      name: class_slug
+      in: path
+      required: true
+      schema: { type: string, pattern: "^[a-z]+$" }
+      example: mystic
+    SkillId:
+      name: skill_id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1 }
+      example: 2786
+
+  responses:
+    NotFound:
+      description: Class or skill not found
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+    ValidationError:
+      description: Invalid request body or a skill that cannot be estimated
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+
+  schemas:
+    Problem:
+      description: RFC 9457 problem details
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, example: "https://bdo-pvp-lab.local/problems/skill-not-found" }
+        title: { type: string, example: Skill not found }
+        status: { type: integer, example: 404 }
+        detail: { type: string, example: "No skill 9999 for class mystic" }
+        instance: { type: string, example: /api/v1/classes/mystic/skills/9999 }
+
+    Health:
+      type: object
+      required: [status, warehouse]
+      properties:
+        status: { type: string, enum: [ok] }
+        warehouse: { type: string, enum: [available, unavailable] }
+
+    ExtractInfo:
+      type: object
+      required: [extract_id, game_builds, class_count, skill_count, built_at]
+      properties:
+        extract_id: { type: string, example: "2026-09-30" }
+        game_builds:
+          type: array
+          items: { type: string }
+          example: ["20260806_094229_44630388", "20260809_234536_44631144"]
+        class_count: { type: integer, example: 32 }
+        skill_count: { type: integer, example: 3272 }
+        built_at: { type: string, format: date-time }
+
+    ClassSummary:
+      type: object
+      required: [class_slug, class_name, specs, skill_count]
+      properties:
+        class_slug: { type: string, example: mystic }
+        class_name: { type: string, example: Mystic }
+        specs:
+          type: array
+          items: { type: string }
+          example: [Succession, Awakening]
+        skill_count: { type: integer, example: 95 }
+
+    SkillSummary:
+      type: object
+      required: [class_slug, skill_id, skill_name, specs, can_down_attack, can_air_attack, pvp_cc, clause_count, dq_status]
+      properties:
+        class_slug: { type: string, example: mystic }
+        skill_id: { type: integer, example: 2786 }
+        skill_name: { type: string, example: Wave Orb III }
+        specs:
+          type: array
+          items: { type: string }
+          example: [Awakening]
+        cooldown_ms: { type: [integer, "null"], example: 10000 }
+        crit_rate: { type: [number, "null"], minimum: 0, maximum: 1, example: 1.0 }
+        can_down_attack: { type: boolean, example: true }
+        can_air_attack: { type: boolean, example: false }
+        max_targets: { type: [integer, "null"], example: 10 }
+        pvp_cc:
+          description: CC types this skill applies in PvP (PvE-only ones excluded, BR-CC-08)
+          type: array
+          items: { type: string }
+          example: []
+        clause_count: { type: integer, example: 2 }
+        total_damage_multiplier:
+          description: Sum of damage_multiplier × hits over clauses (PvE)
+          type: [number, "null"]
+          example: 340.74
+        pvp_damage_multiplier:
+          description: Sum of damage_multiplier × hits × pvp_kept_ratio over clauses with a PvP reduction
+          type: [number, "null"]
+          example: 78.76
+        dq_status: { $ref: "#/components/schemas/DqStatus" }
+
+    SkillDetail:
+      allOf:
+        - $ref: "#/components/schemas/SkillSummary"
+        - type: object
+          required: [pve_only_cc, clauses]
+          properties:
+            pve_only_cc:
+              type: array
+              items: { type: string }
+              example: [bound]
+            clauses:
+              type: array
+              items: { $ref: "#/components/schemas/DamageClause" }
+
+    DamageClause:
+      type: object
+      required: [clause_index, clause_label, macro, damage_multiplier, hits]
+      properties:
+        clause_index: { type: integer, example: 1 }
+        clause_label: { type: string, example: Base damage }
+        macro: { type: string, example: DAM_ATT_2 }
+        damage_multiplier: { type: number, description: "Raw percent / 100 (9698% → 96.98)", example: 96.98 }
+        hits: { type: integer, example: 2 }
+        pvp_kept_ratio: { type: [number, "null"], minimum: 0, maximum: 1, example: 0.2137 }
+        pvp_damage_multiplier: { type: [number, "null"], example: 41.45 }
+        crit_rate: { type: [number, "null"], minimum: 0, maximum: 1, example: 1.0 }
+        dq_flag: { type: [string, "null"], example: null }
+
+    DqStatus:
+      type: string
+      enum: [ok, warning, no_damage]
+
+    Severity:
+      type: string
+      enum: [error, warning, info]
+
+    AttackerStats:
+      type: object
+      required: [ap, accuracy]
+      properties:
+        ap: { type: number, minimum: 0, description: "Effective PvP AP used by this skill (BR-DMG-02 simplified: the user enters it)" }
+        accuracy: { type: number, minimum: 0 }
+        crit_damage_bonus: { type: number, minimum: 0, default: 0, description: "0.2 = +20%" }
+        back_attack_bonus: { type: number, minimum: 0, default: 0 }
+        down_attack_bonus: { type: number, minimum: 0, default: 0 }
+        air_attack_bonus: { type: number, minimum: 0, default: 0 }
+
+    DefenderStats:
+      type: object
+      required: [dr, evasion]
+      properties:
+        dr: { type: number, minimum: 0, description: "Flat DR matching the attacker's AP type (BR-DMG-12)" }
+        evasion: { type: number, minimum: 0 }
+        super_armor_dr_rate: { type: number, minimum: 0, maximum: 0.7, default: 0, description: "Class SA bonus, e.g. 0.10 Maegu, 0.25 Gauntlet (BR-DMG-05)" }
+
+    Situation:
+      type: object
+      required: [target_state]
+      properties:
+        target_state: { type: string, enum: [standing, downed, airborne] }
+        from_behind: { type: boolean, default: false }
+        target_in_super_armor: { type: boolean, default: false, description: "Ignored unless target_state is standing (BR-DMG-11)" }
+        pvp_modifier: { type: number, minimum: 1, maximum: 1.1, default: 1.0, description: "1.05 when the attacker's class group has the advantage (BR-DMG-08)" }
+
+    DamageEstimateRequest:
+      type: object
+      required: [class_slug, skill_id, attacker, defender, situation]
+      properties:
+        class_slug: { type: string }
+        skill_id: { type: integer }
+        attacker: { $ref: "#/components/schemas/AttackerStats" }
+        defender: { $ref: "#/components/schemas/DefenderStats" }
+        situation: { $ref: "#/components/schemas/Situation" }
+
+    ClauseEstimate:
+      type: object
+      required: [clause_index, clause_label, included, expected_hp_loss]
+      properties:
+        clause_index: { type: integer }
+        clause_label: { type: string }
+        included: { type: boolean, description: "false when the clause has no PvP reduction (BR-PVP-03)" }
+        expected_hp_loss: { type: number }
+
+    DamageEstimate:
+      type: object
+      required: [class_slug, skill_id, skill_name, hit_rate, base_damage, damage_reduction_rate, special_multiplier, special_attack, expected_crit_multiplier, pvp_modifier, clauses, total_expected_hp_loss, warnings]
+      properties:
+        class_slug: { type: string }
+        skill_id: { type: integer }
+        skill_name: { type: string }
+        hit_rate: { type: number, description: "BR-DMG-03" }
+        base_damage: { type: number, description: "Expected base damage per instance, BR-DMG-04" }
+        damage_reduction_rate: { type: number, description: "0.30 base + SA bonus when applicable, BR-DMG-05" }
+        special_attack: { type: string, enum: [none, back, down, air] }
+        special_multiplier: { type: number, description: "BR-DMG-07" }
+        expected_crit_multiplier: { type: number, description: "1 + crit_rate × (1 + crit_damage_bonus), BR-DMG-06" }
+        pvp_modifier: { type: number }
+        clauses:
+          type: array
+          items: { $ref: "#/components/schemas/ClauseEstimate" }
+        total_expected_hp_loss: { type: number }
+        warnings:
+          type: array
+          items: { type: string }
+          example: ["Back attack capability is not verified in the data (BR-SPEC-01)"]
+
+    DataQualityMetric:
+      type: object
+      required: [metric, label, value]
+      properties:
+        metric: { type: string, example: clauses_without_pvp_reduction }
+        label: { type: string, example: Damage clauses without PvP reduction }
+        value: { type: number, example: 133 }
+
+    RuleCount:
+      type: object
+      required: [rule, severity, count]
+      properties:
+        rule: { type: string, example: no_pvp_reduction }
+        severity: { $ref: "#/components/schemas/Severity" }
+        count: { type: integer, example: 133 }
+
+    DataQualityReport:
+      type: object
+      required: [extract_id, metrics, rules]
+      properties:
+        extract_id: { type: string }
+        metrics:
+          type: array
+          items: { $ref: "#/components/schemas/DataQualityMetric" }
+        rules:
+          type: array
+          items: { $ref: "#/components/schemas/RuleCount" }
+
+    DataQualityIssue:
+      type: object
+      required: [issue_id, rule, severity, detail]
+      properties:
+        issue_id: { type: string }
+        rule: { type: string }
+        severity: { $ref: "#/components/schemas/Severity" }
+        class_slug: { type: [string, "null"] }
+        skill_id: { type: [integer, "null"] }
+        detail: { type: string }
+
+    DataQualityIssuePage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/DataQualityIssue" }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }

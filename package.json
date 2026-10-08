@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "bdo-pvp-lab-web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "gen:api": "openapi-typescript ../contracts/openapi.yaml -o src/api/schema.d.ts",
+    "gen:api": "openapi-typescript contracts/openapi.yaml -o src/api/schema.d.ts",
+    "sync:contract": "cp ${BDO_API_REPO:-../bdo-pvp-lab-api}/contracts/openapi.yaml contracts/openapi.yaml",
     "mock": "docker run --rm -p 8080:8080 -v ./wiremock/mappings:/home/wiremock/mappings -v ./src/test/fixtures:/home/wiremock/__files wiremock/wiremock:latest --global-response-templating --enable-stub-cors",
     "preview": "vite preview"
   },
