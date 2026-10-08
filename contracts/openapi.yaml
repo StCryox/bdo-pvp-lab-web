@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BDO PvP Lab API
-  version: 1.0.0
+  version: 1.1.0
   description: |
     Read-only access to the BDO skill data product (dbt marts on DuckDB) and a PvP damage estimator.
     Contract-first: this file is the source of truth for `api/` (implementation) and `web/` (types + WireMock stubs).
@@ -259,11 +259,11 @@ components:
           example: []
         clause_count: { type: integer, example: 2 }
         total_damage_multiplier:
-          description: Sum of damage_multiplier × hits over clauses (PvE)
+          description: Sum of damage_multiplier × hits over clauses, selector aliases excluded (PvE)
           type: [number, "null"]
           example: 340.74
         pvp_damage_multiplier:
-          description: Sum of damage_multiplier × hits × pvp_kept_ratio over clauses with a PvP reduction
+          description: Sum of damage_multiplier × hits × pvp_kept_ratio over clauses with a PvP reduction, selector aliases excluded
           type: [number, "null"]
           example: 78.76
         dq_status: { $ref: "#/components/schemas/DqStatus" }
@@ -284,13 +284,16 @@ components:
 
     DamageClause:
       type: object
-      required: [clause_index, clause_label, macro, damage_multiplier, hits]
+      description: A clause is identified by (class_slug, skill_id, source_order, clause_index); clause_index alone can repeat within a skill.
+      required: [source_order, clause_index, clause_label, macro, damage_multiplier, hits, is_selector_alias]
       properties:
+        source_order: { type: integer, description: "Statement index of the clause in the skill script (BR-PARSE-02)", example: 2 }
         clause_index: { type: integer, example: 1 }
         clause_label: { type: string, example: Base damage }
         macro: { type: string, example: DAM_ATT_2 }
         damage_multiplier: { type: number, description: "Raw percent / 100 (9698% → 96.98)", example: 96.98 }
         hits: { type: integer, example: 2 }
+        is_selector_alias: { type: boolean, description: "Same script statement reached through another selector; excluded from sums and from the estimate (BR-DMG-13)", example: false }
         pvp_kept_ratio: { type: [number, "null"], minimum: 0, maximum: 1, example: 0.2137 }
         pvp_damage_multiplier: { type: [number, "null"], example: 41.45 }
         crit_rate: { type: [number, "null"], minimum: 0, maximum: 1, example: 1.0 }
@@ -344,11 +347,12 @@ components:
 
     ClauseEstimate:
       type: object
-      required: [clause_index, clause_label, included, expected_hp_loss]
+      required: [source_order, clause_index, clause_label, included, expected_hp_loss]
       properties:
+        source_order: { type: integer }
         clause_index: { type: integer }
         clause_label: { type: string }
-        included: { type: boolean, description: "false when the clause has no PvP reduction (BR-PVP-03)" }
+        included: { type: boolean, description: "false when the clause is a selector alias (BR-DMG-13) or has no PvP reduction (BR-PVP-03, BR-PVP-04)" }
         expected_hp_loss: { type: number }
 
     DamageEstimate:
