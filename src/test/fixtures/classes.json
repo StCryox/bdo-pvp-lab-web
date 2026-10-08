@@ -1,0 +1,38 @@
+[
+  {
+    "class_slug": "archer",
+    "class_name": "Archer",
+    "specs": ["Awakening"],
+    "skill_count": 88
+  },
+  {
+    "class_slug": "maegu",
+    "class_name": "Maegu",
+    "specs": ["Succession", "Awakening"],
+    "skill_count": 102
+  },
+  {
+    "class_slug": "mystic",
+    "class_name": "Mystic",
+    "specs": ["Succession", "Awakening"],
+    "skill_count": 95
+  },
+  {
+    "class_slug": "scholar",
+    "class_name": "Scholar",
+    "specs": ["Single build"],
+    "skill_count": 74
+  },
+  {
+    "class_slug": "shai",
+    "class_name": "Shai",
+    "specs": ["Single build"],
+    "skill_count": 61
+  },
+  {
+    "class_slug": "warrior",
+    "class_name": "Warrior",
+    "specs": ["Succession", "Awakening"],
+    "skill_count": 117
+  }
+]

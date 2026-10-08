@@ -5,6 +5,9 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [react(), babel({ presets: [reactCompilerPreset()] }), tailwindcss()],
+  server: {
+    fs: { allow: ['.', '../contracts'] },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],

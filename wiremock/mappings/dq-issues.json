@@ -1,0 +1,17 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPath": "/api/v1/data-quality/issues"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "dq-issues.json"
+  },
+  "metadata": {
+    "operationId": "listDataQualityIssues"
+  }
+}

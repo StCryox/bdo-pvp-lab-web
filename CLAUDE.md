@@ -26,7 +26,7 @@ A small, clean consumer of the data product: browse classes and skills, see PvP 
 | `lint` | `eslint .` |
 | `format:check` | `prettier --check .` |
 | `gen:api` | `openapi-typescript ../contracts/openapi.yaml -o src/api/schema.d.ts` |
-| `mock` | `docker run --rm -p 8080:8080 -v ./wiremock/mappings:/home/wiremock/mappings -v ./src/test/fixtures:/home/wiremock/__files wiremock/wiremock:latest --global-response-templating` |
+| `mock` | `docker run --rm -p 8080:8080 -v ./wiremock/mappings:/home/wiremock/mappings -v ./src/test/fixtures:/home/wiremock/__files wiremock/wiremock:latest --global-response-templating --enable-stub-cors` |
 
 `VITE_API_BASE_URL` selects the backend: `http://localhost:8080` (WireMock) or `http://localhost:8000` (real API). Default in `.env.development`: WireMock.
 
@@ -58,6 +58,7 @@ Each component has a `*.test.tsx` next to it.
 - WireMock mappings serve them (`"bodyFileName": "skill-2786.json"`), so the dev server and the tests use the same data.
 - Unit/integration tests never call WireMock or any network: `renderWithProviders` injects a fake `fetch` that routes URLs to the same fixture files.
 - Add one mapping per error case used by the UI: unknown skill → 404 problem+json, invalid estimate → 422.
+- Each mapping carries `"metadata": { "operationId": ... }`; `src/test/fixtures.test.ts` validates every served body against that operation's response schema in the contract.
 
 ## Routes and pages
 | Route | Page | Content |

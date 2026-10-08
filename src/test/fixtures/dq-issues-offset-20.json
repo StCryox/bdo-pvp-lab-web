@@ -1,0 +1,167 @@
+{
+  "items": [
+    {
+      "issue_id": "no_pvp_reduction:maegu:1133:2",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "maegu",
+      "skill_id": 1133,
+      "detail": "Clause 2 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:mystic:1140:3",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "mystic",
+      "skill_id": 1140,
+      "detail": "Clause 3 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:scholar:1147:1",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "scholar",
+      "skill_id": 1147,
+      "detail": "Clause 1 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:shai:1154:2",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "shai",
+      "skill_id": 1154,
+      "detail": "Clause 2 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:warrior:1161:3",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "warrior",
+      "skill_id": 1161,
+      "detail": "Clause 3 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:archer:1168:1",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "archer",
+      "skill_id": 1168,
+      "detail": "Clause 1 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:maegu:1175:2",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "maegu",
+      "skill_id": 1175,
+      "detail": "Clause 2 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:mystic:1182:3",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "mystic",
+      "skill_id": 1182,
+      "detail": "Clause 3 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:scholar:1189:1",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "scholar",
+      "skill_id": 1189,
+      "detail": "Clause 1 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:shai:1196:2",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "shai",
+      "skill_id": 1196,
+      "detail": "Clause 2 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:warrior:1203:3",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "warrior",
+      "skill_id": 1203,
+      "detail": "Clause 3 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:archer:1210:1",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "archer",
+      "skill_id": 1210,
+      "detail": "Clause 1 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:maegu:1217:2",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "maegu",
+      "skill_id": 1217,
+      "detail": "Clause 2 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:mystic:1224:3",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "mystic",
+      "skill_id": 1224,
+      "detail": "Clause 3 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:scholar:1231:1",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "scholar",
+      "skill_id": 1231,
+      "detail": "Clause 1 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:shai:1238:2",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "shai",
+      "skill_id": 1238,
+      "detail": "Clause 2 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:warrior:1245:3",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "warrior",
+      "skill_id": 1245,
+      "detail": "Clause 3 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:archer:1252:1",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "archer",
+      "skill_id": 1252,
+      "detail": "Clause 1 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:maegu:1259:2",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "maegu",
+      "skill_id": 1259,
+      "detail": "Clause 2 has a damage multiplier but no PvP reduction"
+    },
+    {
+      "issue_id": "no_pvp_reduction:mystic:1266:3",
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "class_slug": "mystic",
+      "skill_id": 1266,
+      "detail": "Clause 3 has a damage multiplier but no PvP reduction"
+    }
+  ],
+  "total": 145,
+  "limit": 20,
+  "offset": 20
+}

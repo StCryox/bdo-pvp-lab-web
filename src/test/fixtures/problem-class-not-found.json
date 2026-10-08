@@ -1,0 +1,7 @@
+{
+  "type": "https://bdo-pvp-lab.local/problems/class-not-found",
+  "title": "Class not found",
+  "status": 404,
+  "detail": "No class unknown",
+  "instance": "/api/v1/classes/unknown/skills"
+}

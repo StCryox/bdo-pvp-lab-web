@@ -1,0 +1,17 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/api/v1/classes/[a-z]+/skills/[0-9]+"
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/problem+json"
+    },
+    "bodyFileName": "problem-skill-not-found.json"
+  },
+  "metadata": {
+    "operationId": "getSkill"
+  }
+}

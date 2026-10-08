@@ -1,0 +1,22 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/v1/damage/estimate",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.situation.pvp_modifier > 1.1 || @.attacker.ap < 0)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/problem+json"
+    },
+    "bodyFileName": "problem-invalid-estimate.json"
+  },
+  "metadata": {
+    "operationId": "estimateDamage"
+  }
+}

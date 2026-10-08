@@ -1,0 +1,17 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPath": "/api/v1/classes/mystic/skills/2786"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "skill-2786.json"
+  },
+  "metadata": {
+    "operationId": "getSkill"
+  }
+}

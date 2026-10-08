@@ -1,0 +1,47 @@
+{
+  "extract_id": "2026-09-30",
+  "metrics": [
+    {
+      "metric": "skill_count",
+      "label": "Skills",
+      "value": 3272
+    },
+    {
+      "metric": "damage_clause_count",
+      "label": "Damage clauses",
+      "value": 4815
+    },
+    {
+      "metric": "clauses_without_pvp_reduction",
+      "label": "Damage clauses without PvP reduction",
+      "value": 133
+    },
+    {
+      "metric": "skills_without_damage",
+      "label": "Skills without damage",
+      "value": 1104
+    },
+    {
+      "metric": "shared_skill_ids",
+      "label": "Skill IDs shared by several classes",
+      "value": 203
+    }
+  ],
+  "rules": [
+    {
+      "rule": "no_pvp_reduction",
+      "severity": "warning",
+      "count": 133
+    },
+    {
+      "rule": "unparsed_macro",
+      "severity": "error",
+      "count": 3
+    },
+    {
+      "rule": "missing_cooldown",
+      "severity": "info",
+      "count": 9
+    }
+  ]
+}

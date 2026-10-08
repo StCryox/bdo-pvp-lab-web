@@ -1,0 +1,17 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "GET",
+    "urlPath": "/api/v1/health"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "health.json"
+  },
+  "metadata": {
+    "operationId": "getHealth"
+  }
+}

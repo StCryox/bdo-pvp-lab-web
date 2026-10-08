@@ -1,0 +1,17 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/v1/damage/estimate"
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/problem+json"
+    },
+    "bodyFileName": "problem-skill-not-found.json"
+  },
+  "metadata": {
+    "operationId": "estimateDamage"
+  }
+}

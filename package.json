@@ -12,7 +12,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "gen:api": "openapi-typescript ../contracts/openapi.yaml -o src/api/schema.d.ts",
-    "mock": "docker run --rm -p 8080:8080 -v ./wiremock/mappings:/home/wiremock/mappings -v ./src/test/fixtures:/home/wiremock/__files wiremock/wiremock:latest --global-response-templating",
+    "mock": "docker run --rm -p 8080:8080 -v ./wiremock/mappings:/home/wiremock/mappings -v ./src/test/fixtures:/home/wiremock/__files wiremock/wiremock:latest --global-response-templating --enable-stub-cors",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -36,6 +36,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "ajv": "^8.20.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
@@ -49,6 +50,7 @@
     "typescript": "~5.9",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.0",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
   }
 }

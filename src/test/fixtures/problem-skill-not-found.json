@@ -1,0 +1,7 @@
+{
+  "type": "https://bdo-pvp-lab.local/problems/skill-not-found",
+  "title": "Skill not found",
+  "status": 404,
+  "detail": "No skill 9999 for class mystic",
+  "instance": "/api/v1/classes/mystic/skills/9999"
+}

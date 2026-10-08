@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "issue_id": "unparsed_macro:maegu:3120:1",
+      "rule": "unparsed_macro",
+      "severity": "error",
+      "class_slug": "maegu",
+      "skill_id": 3120,
+      "detail": "Macro DAM_ATT_X(3) could not be parsed"
+    },
+    {
+      "issue_id": "unparsed_macro:warrior:410:2",
+      "rule": "unparsed_macro",
+      "severity": "error",
+      "class_slug": "warrior",
+      "skill_id": 410,
+      "detail": "Macro DAM_ATT_X(3) could not be parsed"
+    },
+    {
+      "issue_id": "unparsed_macro:catalog:1",
+      "rule": "unparsed_macro",
+      "severity": "error",
+      "class_slug": null,
+      "skill_id": null,
+      "detail": "Shared script block 77 references an unknown macro"
+    }
+  ],
+  "total": 3,
+  "limit": 20,
+  "offset": 0
+}

@@ -1,0 +1,41 @@
+{
+  "class_slug": "mystic",
+  "skill_id": 2786,
+  "skill_name": "Wave Orb III",
+  "specs": ["Awakening"],
+  "cooldown_ms": 10000,
+  "crit_rate": 1.0,
+  "can_down_attack": true,
+  "can_air_attack": false,
+  "max_targets": 10,
+  "pvp_cc": [],
+  "clause_count": 2,
+  "total_damage_multiplier": 340.74,
+  "pvp_damage_multiplier": 78.76,
+  "dq_status": "ok",
+  "pve_only_cc": ["bound"],
+  "clauses": [
+    {
+      "clause_index": 1,
+      "clause_label": "Base damage",
+      "macro": "DAM_ATT_2",
+      "damage_multiplier": 96.98,
+      "hits": 2,
+      "pvp_kept_ratio": 0.2137,
+      "pvp_damage_multiplier": 41.45,
+      "crit_rate": 1.0,
+      "dq_flag": null
+    },
+    {
+      "clause_index": 2,
+      "clause_label": "Extra damage",
+      "macro": "DAM_ATT_2",
+      "damage_multiplier": 73.39,
+      "hits": 2,
+      "pvp_kept_ratio": 0.2542,
+      "pvp_damage_multiplier": 37.31,
+      "crit_rate": 1.0,
+      "dq_flag": null
+    }
+  ]
+}

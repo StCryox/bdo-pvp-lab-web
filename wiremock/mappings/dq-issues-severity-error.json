@@ -1,0 +1,22 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/api/v1/data-quality/issues",
+    "queryParameters": {
+      "severity": {
+        "equalTo": "error"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "dq-issues-severity-error.json"
+  },
+  "metadata": {
+    "operationId": "listDataQualityIssues"
+  }
+}
