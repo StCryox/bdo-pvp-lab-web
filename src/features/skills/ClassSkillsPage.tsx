@@ -2,13 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { useApiClient } from '../../api/apiContext'
 import { classSkillsQuery, classesQuery } from '../../api/queries'
-import type { components } from '../../api/schema'
 import { ErrorState } from '../../components/ErrorState'
 import { Loading } from '../../components/Loading'
 import { formatNumber, formatSeconds } from '../../format'
 import { DqStatusBadge } from './DqStatusBadge'
-
-type SkillSummary = components['schemas']['SkillSummary']
+import { specialAttacks } from './specialAttacks'
 
 const specSearch = (spec: string | undefined) =>
   spec === undefined ? '' : `?${new URLSearchParams({ spec })}`
@@ -36,9 +34,6 @@ function SpecTabs({ specs, current }: { specs: string[]; current: string | undef
     </nav>
   )
 }
-
-const specialAttacks = (skill: SkillSummary) =>
-  [skill.can_down_attack && 'Down', skill.can_air_attack && 'Air'].filter(Boolean).join(', ') || '—'
 
 function SkillsTable({ classSlug, spec }: { classSlug: string; spec: string | undefined }) {
   const { data, error, isPending } = useQuery(classSkillsQuery(useApiClient(), classSlug, spec))

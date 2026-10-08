@@ -17,6 +17,12 @@ describe('routes', () => {
     expect(await screen.findByRole('link', { name: 'Wave Orb III' })).toBeInTheDocument()
   })
 
+  it('shows the detail of a skill', async () => {
+    renderRoutes(routes, { route: '/classes/mystic/skills/2786' })
+
+    expect(await screen.findByRole('heading', { name: 'Wave Orb III' })).toBeInTheDocument()
+  })
+
   it('shows the not found page inside the layout for an unknown url', async () => {
     renderRoutes(routes, { route: '/nowhere' })
 
