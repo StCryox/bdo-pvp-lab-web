@@ -59,6 +59,16 @@ export const dataQualityIssuesQuery = (client: ApiClient, filters: IssueFilters)
       unwrap(client.GET('/api/v1/data-quality/issues', { params: { query: filters } })),
   })
 
+// One estimate per skill of a table: the result only depends on the body, and a
+// 4xx (skill without damage) would not succeed on retry.
+export const damageEstimateQuery = (client: ApiClient, body: DamageEstimateRequest) =>
+  queryOptions({
+    queryKey: ['damage-estimate', body],
+    queryFn: () => unwrap(client.POST('/api/v1/damage/estimate', { body })),
+    staleTime: Infinity,
+    retry: false,
+  })
+
 export function useEstimateDamage() {
   const client = useApiClient()
   return useMutation({

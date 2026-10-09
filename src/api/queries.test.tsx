@@ -12,6 +12,7 @@ import { type ApiClient, createApiClient } from './client'
 import {
   classSkillsQuery,
   classesQuery,
+  damageEstimateQuery,
   dataQualityIssuesQuery,
   dataQualityQuery,
   healthQuery,
@@ -39,6 +40,28 @@ const requestedUrl = async <TData, TKey extends QueryKey>(
   const { client, requests } = recordingClient()
   await new QueryClient().fetchQuery(build(client))
   return requests[0]?.url ?? ''
+}
+
+const estimateBody = {
+  class_slug: 'mystic',
+  skill_id: 2786,
+  variant: 1,
+  attacker: {
+    ap: 1085,
+    accuracy: 1353,
+    crit_rate_bonus: 0,
+    crit_damage_bonus: 0.2,
+    back_attack_bonus: 0,
+    down_attack_bonus: 0,
+    air_attack_bonus: 0,
+  },
+  defender: { dr: 740, evasion: 1197, super_armor_dr_rate: 0.1 },
+  situation: {
+    target_state: 'downed' as const,
+    from_behind: false,
+    target_in_super_armor: false,
+    pvp_modifier: 1,
+  },
 }
 
 describe('query options', () => {
@@ -98,6 +121,26 @@ describe('query options', () => {
   })
 })
 
+describe('damageEstimateQuery', () => {
+  it('posts the estimate request', async () => {
+    const { client, requests } = recordingClient()
+
+    await new QueryClient().fetchQuery(damageEstimateQuery(client, estimateBody))
+
+    expect(requests[0]?.method).toBe('POST')
+    expect(requests[0]?.url).toBe('http://api.test/api/v1/damage/estimate')
+    expect(await requests[0]?.json()).toEqual(estimateBody)
+  })
+
+  it('uses distinct query keys for distinct skills', () => {
+    const { client } = recordingClient()
+
+    expect(damageEstimateQuery(client, estimateBody).queryKey).not.toEqual(
+      damageEstimateQuery(client, { ...estimateBody, skill_id: 2794 }).queryKey,
+    )
+  })
+})
+
 describe('useEstimateDamage', () => {
   it('posts the estimate request', async () => {
     const { client, requests } = recordingClient()
@@ -107,31 +150,12 @@ describe('useEstimateDamage', () => {
       </QueryClientProvider>
     )
     const { result } = renderHook(() => useEstimateDamage(), { wrapper })
-    const body = {
-      class_slug: 'mystic',
-      skill_id: 2786,
-      attacker: {
-        ap: 1085,
-        accuracy: 1353,
-        crit_damage_bonus: 0.2,
-        back_attack_bonus: 0,
-        down_attack_bonus: 0,
-        air_attack_bonus: 0,
-      },
-      defender: { dr: 740, evasion: 1197, super_armor_dr_rate: 0.1 },
-      situation: {
-        target_state: 'downed' as const,
-        from_behind: false,
-        target_in_super_armor: false,
-        pvp_modifier: 1,
-      },
-    }
 
-    result.current.mutate(body)
+    result.current.mutate(estimateBody)
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(requests[0]?.method).toBe('POST')
     expect(requests[0]?.url).toBe('http://api.test/api/v1/damage/estimate')
-    expect(await requests[0]?.json()).toEqual(body)
+    expect(await requests[0]?.json()).toEqual(estimateBody)
   })
 })
