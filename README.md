@@ -2,9 +2,7 @@
 
 The React app of BDO PvP Lab: browse Black Desert Online classes and skills, see the PvP damage of each skill, estimate the damage of a skill on a target, and check the data quality of the extract behind it.
 
-The data (pipeline and API) lives in [`bdo-pvp-lab-api`](https://github.com/StCryox/bdo-pvp-lab-api). This app only talks to that API, through its OpenAPI contract, and runs without it against WireMock stubs.
-
-> **Status:** work in progress. Every page works against the WireMock stubs; integration with the real API is pending.
+The data is built by [`bdo-pvp-lab-pipeline`](https://github.com/StCryox/bdo-pvp-lab-pipeline) and served by [`bdo-pvp-lab-api`](https://github.com/StCryox/bdo-pvp-lab-api). This app only talks to that API, through its OpenAPI contract, and runs without it against WireMock stubs.
 
 ## Features
 
@@ -31,11 +29,20 @@ npm run mock      # WireMock on http://localhost:8080, serves the test fixtures
 npm run dev       # http://localhost:5173
 ```
 
-The backend is selected with `VITE_API_BASE_URL`. `.env.development` points at WireMock; to use the real API (`just api` in `bdo-pvp-lab-api`), override it in a `.env.development.local`:
+The backend is selected with `VITE_API_BASE_URL`. `.env.development` points at WireMock.
 
-```bash
-VITE_API_BASE_URL=http://localhost:8000
-```
+### Run against the real API
+
+1. Build the warehouse in [`bdo-pvp-lab-pipeline`](https://github.com/StCryox/bdo-pvp-lab-pipeline) (`just setup && just pipeline`), then start the API in [`bdo-pvp-lab-api`](https://github.com/StCryox/bdo-pvp-lab-api) (`just setup && just api`, port 8000).
+2. Override the backend in a `.env.development.local`. It is git-ignored, so create it on every fresh clone:
+
+   ```bash
+   echo "VITE_API_BASE_URL=http://localhost:8000" > .env.development.local
+   ```
+
+3. Restart `npm run dev`: Vite reads env files only at startup.
+
+Without this file the app calls WireMock on port 8080. If WireMock is not running, the pages stay empty and the browser console reports a CORS error, although the API on port 8000 works.
 
 ## Scripts
 
