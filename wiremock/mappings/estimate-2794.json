@@ -1,0 +1,31 @@
+{
+  "priority": 5,
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/v1/damage/estimate",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": {
+          "expression": "$.class_slug",
+          "equalTo": "mystic"
+        }
+      },
+      {
+        "matchesJsonPath": {
+          "expression": "$.skill_id",
+          "equalTo": "2794"
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "estimate-2794.json"
+  },
+  "metadata": {
+    "operationId": "estimateDamage"
+  }
+}

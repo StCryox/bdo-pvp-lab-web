@@ -36,7 +36,12 @@ function SkillFacts({ skill }: { skill: SkillDetail }) {
 const numberCell = 'py-2 pr-4 text-right tabular-nums'
 const headerCell = 'py-2 pr-4 font-medium'
 
-function ClausesTable({ clauses }: { clauses: SkillDetail['clauses'] }) {
+interface ClausesTableProps {
+  clauses: SkillDetail['clauses']
+  showVariant: boolean
+}
+
+function ClausesTable({ clauses, showVariant }: ClausesTableProps) {
   if (clauses.length === 0) return <p className="text-zinc-400">This skill has no damage clause.</p>
   return (
     <div className="overflow-x-auto">
@@ -66,11 +71,16 @@ function ClausesTable({ clauses }: { clauses: SkillDetail['clauses'] }) {
               PvP damage ×
             </th>
             <th scope="col" className={`${headerCell} text-right`}>
-              Crit rate
+              Crit rate (PvE)
             </th>
             <th scope="col" className={headerCell}>
               DQ flag
             </th>
+            {showVariant && (
+              <th scope="col" className={`${headerCell} text-right`}>
+                Variant
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -94,7 +104,8 @@ function ClausesTable({ clauses }: { clauses: SkillDetail['clauses'] }) {
               <td className={numberCell}>{formatPercent(clause.pvp_kept_ratio)}</td>
               <td className={numberCell}>{formatNumber(clause.pvp_damage_multiplier)}</td>
               <td className={numberCell}>{formatPercent(clause.crit_rate)}</td>
-              <td className="py-2 text-amber-300">{clause.dq_flag ?? '—'}</td>
+              <td className="py-2 pr-4 text-amber-300">{clause.dq_flag ?? '—'}</td>
+              {showVariant && <td className={numberCell}>{clause.variant}</td>}
             </tr>
           ))}
         </tbody>
@@ -118,7 +129,7 @@ function SkillContent({ classSlug, skillId }: { classSlug: string; skillId: numb
     <>
       <h1 className="text-2xl font-semibold">{data.skill_name}</h1>
       <SkillFacts skill={data} />
-      <ClausesTable clauses={data.clauses} />
+      <ClausesTable clauses={data.clauses} showVariant={data.variants.length > 1} />
       {data.pve_only_cc.length > 0 && (
         <p className="text-sm text-zinc-400">
           These CC only apply in PvE: {data.pve_only_cc.join(', ')}
@@ -128,6 +139,8 @@ function SkillContent({ classSlug, skillId }: { classSlug: string; skillId: numb
         key={`${classSlug}/${skillId}`}
         classSlug={classSlug}
         skillId={skillId}
+        critRate={data.crit_rate}
+        variants={data.variants}
         clauses={data.clauses}
       />
     </>

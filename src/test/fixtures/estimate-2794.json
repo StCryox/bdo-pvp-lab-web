@@ -1,0 +1,46 @@
+{
+  "class_slug": "mystic",
+  "skill_id": 2794,
+  "skill_name": "Wave of Light",
+  "variant": 1,
+  "hit_rate": 1.0,
+  "base_damage": 345.0,
+  "damage_reduction_rate": 0.3,
+  "special_attack": "down",
+  "special_multiplier": 1.2,
+  "expected_crit_multiplier": 2.2,
+  "pvp_modifier": 1.0,
+  "clauses": [
+    {
+      "source_order": 1,
+      "clause_index": 1,
+      "clause_label": "Base damage",
+      "included": true,
+      "hp_loss_no_crit": 238.23,
+      "hp_loss_crit": 524.1,
+      "expected_hp_loss": 524.1
+    },
+    {
+      "source_order": 2,
+      "clause_index": 2,
+      "clause_label": "Extra damage",
+      "included": true,
+      "hp_loss_no_crit": 332.91,
+      "hp_loss_crit": 732.4,
+      "expected_hp_loss": 732.4
+    },
+    {
+      "source_order": 3,
+      "clause_index": 1,
+      "clause_label": "Base damage",
+      "included": false,
+      "hp_loss_no_crit": 0.0,
+      "hp_loss_crit": 0.0,
+      "expected_hp_loss": 0.0
+    }
+  ],
+  "total_hp_loss_no_crit": 571.14,
+  "total_hp_loss_crit": 1256.5,
+  "total_expected_hp_loss": 1256.5,
+  "warnings": []
+}

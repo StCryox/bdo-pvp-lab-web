@@ -12,6 +12,14 @@
   "clause_count": 2,
   "total_damage_multiplier": 340.74,
   "pvp_damage_multiplier": 78.76,
+  "variants": [
+    {
+      "variant": 1,
+      "clause_count": 2,
+      "total_damage_multiplier": 340.74,
+      "pvp_damage_multiplier": 78.76
+    }
+  ],
   "dq_status": "ok",
   "pve_only_cc": ["bound"],
   "clauses": [
@@ -26,6 +34,7 @@
       "pvp_kept_ratio": 0.2137,
       "pvp_damage_multiplier": 41.45,
       "crit_rate": 1.0,
+      "variant": 1,
       "dq_flag": null
     },
     {
@@ -39,6 +48,7 @@
       "pvp_kept_ratio": 0.2542,
       "pvp_damage_multiplier": 37.31,
       "crit_rate": 1.0,
+      "variant": 1,
       "dq_flag": null
     }
   ]

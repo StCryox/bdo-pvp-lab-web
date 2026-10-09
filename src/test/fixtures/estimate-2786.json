@@ -2,6 +2,7 @@
   "class_slug": "mystic",
   "skill_id": 2786,
   "skill_name": "Wave Orb III",
+  "variant": 1,
   "hit_rate": 1.0,
   "base_damage": 345.0,
   "damage_reduction_rate": 0.3,
@@ -15,6 +16,8 @@
       "clause_index": 1,
       "clause_label": "Base damage",
       "included": true,
+      "hp_loss_no_crit": 647.39,
+      "hp_loss_crit": 1424.25,
       "expected_hp_loss": 1424.25
     },
     {
@@ -22,9 +25,13 @@
       "clause_index": 2,
       "clause_label": "Extra damage",
       "included": true,
+      "hp_loss_no_crit": 582.76,
+      "hp_loss_crit": 1282.07,
       "expected_hp_loss": 1282.07
     }
   ],
+  "total_hp_loss_no_crit": 1230.15,
+  "total_hp_loss_crit": 2706.32,
   "total_expected_hp_loss": 2706.32,
   "warnings": []
 }

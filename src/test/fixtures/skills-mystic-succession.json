@@ -13,6 +13,14 @@
     "clause_count": 2,
     "total_damage_multiplier": 388.1,
     "pvp_damage_multiplier": 91.3,
+    "variants": [
+      {
+        "variant": 1,
+        "clause_count": 2,
+        "total_damage_multiplier": 388.1,
+        "pvp_damage_multiplier": 91.3
+      }
+    ],
     "dq_status": "ok"
   },
   {
@@ -29,6 +37,14 @@
     "clause_count": 1,
     "total_damage_multiplier": 145.2,
     "pvp_damage_multiplier": 36.3,
+    "variants": [
+      {
+        "variant": 1,
+        "clause_count": 1,
+        "total_damage_multiplier": 145.2,
+        "pvp_damage_multiplier": 36.3
+      }
+    ],
     "dq_status": "ok"
   },
   {
@@ -45,6 +61,7 @@
     "clause_count": 0,
     "total_damage_multiplier": null,
     "pvp_damage_multiplier": null,
+    "variants": [],
     "dq_status": "no_damage"
   }
 ]

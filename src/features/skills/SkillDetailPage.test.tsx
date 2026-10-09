@@ -62,6 +62,54 @@ describe('SkillDetailPage', () => {
     ])
   })
 
+  it('labels the clause crit rate as the PvE one', async () => {
+    renderPage()
+
+    expect(await screen.findByRole('columnheader', { name: 'Crit rate (PvE)' })).toBeInTheDocument()
+  })
+
+  it('shows the variant of each clause when the skill has several', async () => {
+    const skill = await import('../../test/fixtures/skill-2786.json')
+    const [first, second] = skill.clauses
+    renderPage('/classes/mystic/skills/2786', [
+      {
+        method: 'GET',
+        path: '/api/v1/classes/mystic/skills/2786',
+        status: 200,
+        body: {
+          ...skill.default,
+          variants: [
+            {
+              variant: 1,
+              clause_count: 1,
+              total_damage_multiplier: 193.96,
+              pvp_damage_multiplier: 41.45,
+            },
+            {
+              variant: 2,
+              clause_count: 1,
+              total_damage_multiplier: 146.78,
+              pvp_damage_multiplier: 37.31,
+            },
+          ],
+          clauses: [first, { ...second, variant: 2 }],
+        },
+      },
+    ])
+
+    await screen.findByRole('table', { name: 'Damage clauses' })
+    expect(screen.getByRole('columnheader', { name: 'Variant' })).toBeInTheDocument()
+    expect(clauseRows().map((row) => row.at(-1))).toEqual(['1', '2'])
+    expect(screen.getByLabelText('Variant')).toBeInTheDocument()
+  })
+
+  it('shows no variant column for a skill with one variant', async () => {
+    renderPage()
+
+    await screen.findByRole('table', { name: 'Damage clauses' })
+    expect(screen.queryByRole('columnheader', { name: 'Variant' })).not.toBeInTheDocument()
+  })
+
   it('notes the CC that only apply in PvE', async () => {
     renderPage()
 
@@ -75,7 +123,7 @@ describe('SkillDetailPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Estimate damage' }))
 
-    expect(await screen.findByText('2706.32')).toBeInTheDocument()
+    expect(await screen.findByText('2706.32', { selector: 'span' })).toBeInTheDocument()
   })
 
   it('flags a clause without PvP reduction', async () => {
@@ -130,6 +178,7 @@ describe('SkillDetailPage', () => {
       clause_count: 0,
       total_damage_multiplier: null,
       pvp_damage_multiplier: null,
+      variants: [],
       dq_status: 'no_damage',
       pve_only_cc: [],
       clauses: [],
