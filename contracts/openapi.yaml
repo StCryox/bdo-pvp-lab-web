@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BDO PvP Lab API
-  version: 1.2.0
+  version: 2.0.0
   description: |
     Read-only access to the BDO skill data product (dbt marts on DuckDB) and a PvP damage estimator.
     Contract-first: this file is the source of truth for `api/` (implementation) and `web/` (types + WireMock stubs).
@@ -114,7 +114,7 @@ paths:
             example:
               class_slug: mystic
               skill_id: 2786
-              attacker: { ap: 1085, accuracy: 1353, crit_damage_bonus: 0.2, back_attack_bonus: 0, down_attack_bonus: 0, air_attack_bonus: 0 }
+              attacker: { ap: 1085, accuracy: 1353, crit_rate_bonus: 0, crit_damage_bonus: 0.2, back_attack_bonus: 0, down_attack_bonus: 0, air_attack_bonus: 0 }
               defender: { dr: 740, evasion: 1197, super_armor_dr_rate: 0.10 }
               situation: { target_state: downed, from_behind: false, target_in_super_armor: false, pvp_modifier: 1.0 }
       responses:
@@ -253,7 +253,7 @@ components:
 
     SkillSummary:
       type: object
-      required: [class_slug, skill_id, skill_name, specs, can_down_attack, can_air_attack, pvp_cc, clause_count, dq_status]
+      required: [class_slug, skill_id, skill_name, specs, can_down_attack, can_air_attack, pvp_cc, clause_count, variants, dq_status]
       properties:
         class_slug: { type: string, example: mystic }
         skill_id: { type: integer, example: 2786 }
@@ -263,7 +263,7 @@ components:
           items: { type: string }
           example: [Awakening]
         cooldown_ms: { type: [integer, "null"], example: 10000 }
-        crit_rate: { type: [number, "null"], minimum: 0, maximum: 1, example: 1.0 }
+        crit_rate: { type: [number, "null"], minimum: 0, maximum: 1, example: 1.0, description: "PvP crit rate of the skill (BR-DMG-06): a PvE-only CRI_POINT counts as 0" }
         can_down_attack: { type: boolean, example: true }
         can_air_attack: { type: boolean, example: false }
         max_targets: { type: [integer, "null"], example: 10 }
@@ -274,14 +274,35 @@ components:
           example: []
         clause_count: { type: integer, example: 2 }
         total_damage_multiplier:
-          description: Sum of damage_multiplier × hits over clauses, selector aliases excluded (PvE)
+          description: total_damage_multiplier of variant 1 (BR-PVP-05)
           type: [number, "null"]
           example: 340.74
         pvp_damage_multiplier:
-          description: Sum of damage_multiplier × hits × pvp_kept_ratio over clauses with a PvP reduction, selector aliases excluded
+          description: pvp_damage_multiplier of variant 1 (BR-PVP-05)
           type: [number, "null"]
           example: 78.76
+        variants:
+          description: >
+            One per PvP reduction of the skill (BR-PVP-05), from 1. Variants are alternatives (Prime: Wave Orb
+            normal or with Martial Spirit), never added together. Empty for a skill without damage clause.
+          type: array
+          items: { $ref: "#/components/schemas/SkillVariant" }
         dq_status: { $ref: "#/components/schemas/DqStatus" }
+
+    SkillVariant:
+      type: object
+      required: [variant, clause_count]
+      properties:
+        variant: { type: integer, minimum: 1, example: 1 }
+        clause_count: { type: integer, description: "Damage clauses of the variant, selector aliases included", example: 2 }
+        total_damage_multiplier:
+          description: Sum of damage_multiplier × hits over the variant's clauses, selector aliases excluded (PvE)
+          type: [number, "null"]
+          example: 340.74
+        pvp_damage_multiplier:
+          description: Sum of damage_multiplier × hits × pvp_kept_ratio over the variant's clauses with a PvP reduction, selector aliases excluded
+          type: [number, "null"]
+          example: 78.76
 
     SkillDetail:
       allOf:
@@ -300,7 +321,7 @@ components:
     DamageClause:
       type: object
       description: A clause is identified by (class_slug, skill_id, source_order, clause_index); clause_index alone can repeat within a skill.
-      required: [source_order, clause_index, clause_label, macro, damage_multiplier, hits, is_selector_alias]
+      required: [source_order, clause_index, clause_label, macro, damage_multiplier, hits, is_selector_alias, variant]
       properties:
         source_order: { type: integer, description: "Statement index of the clause in the skill script (BR-PARSE-02)", example: 2 }
         clause_index: { type: integer, example: 1 }
@@ -311,8 +332,9 @@ components:
         is_selector_alias: { type: boolean, description: "Same script statement reached through another selector; excluded from sums and from the estimate (BR-DMG-13)", example: false }
         pvp_kept_ratio: { type: [number, "null"], minimum: 0, maximum: 1, example: 0.2137 }
         pvp_damage_multiplier: { type: [number, "null"], example: 41.45 }
-        crit_rate: { type: [number, "null"], minimum: 0, maximum: 1, example: 1.0 }
-        dq_flag: { type: [string, "null"], example: null }
+        crit_rate: { type: [number, "null"], minimum: 0, maximum: 1, example: 1.0, description: "PvE crit rate from the damage maps; PvP estimates use the skill crit_rate (BR-DMG-06)" }
+        variant: { type: integer, minimum: 1, description: "Variant of the skill the clause belongs to (BR-PVP-05)", example: 1 }
+        dq_flag: { type: [string, "null"], description: "no_pvp_reduction (BR-PVP-03), empty_pvp_reduction (BR-PVP-04) or ambiguous_pvp_reduction (BR-PVP-05)", example: null }
 
     DqStatus:
       type: string
@@ -328,6 +350,7 @@ components:
       properties:
         ap: { type: number, minimum: 0, description: "Effective PvP AP used by this skill (BR-DMG-02 simplified: the user enters it)" }
         accuracy: { type: number, minimum: 0 }
+        crit_rate_bonus: { type: number, minimum: 0, maximum: 1, default: 0, description: "Added to the clause or skill crit rate, capped at 1 (0.2 = +20 points), BR-DMG-06" }
         crit_damage_bonus: { type: number, minimum: 0, default: 0, description: "0.2 = +20%" }
         back_attack_bonus: { type: number, minimum: 0, default: 0 }
         down_attack_bonus: { type: number, minimum: 0, default: 0 }
@@ -356,38 +379,44 @@ components:
       properties:
         class_slug: { type: string }
         skill_id: { type: integer }
+        variant: { type: integer, minimum: 1, default: 1, description: "Variant to estimate (BR-PVP-05); only its clauses count" }
         attacker: { $ref: "#/components/schemas/AttackerStats" }
         defender: { $ref: "#/components/schemas/DefenderStats" }
         situation: { $ref: "#/components/schemas/Situation" }
 
     ClauseEstimate:
       type: object
-      required: [source_order, clause_index, clause_label, included, expected_hp_loss]
+      required: [source_order, clause_index, clause_label, included, hp_loss_no_crit, hp_loss_crit, expected_hp_loss]
       properties:
         source_order: { type: integer }
         clause_index: { type: integer }
         clause_label: { type: string }
         included: { type: boolean, description: "false when the clause is a selector alias (BR-DMG-13) or has no PvP reduction (BR-PVP-03, BR-PVP-04)" }
-        expected_hp_loss: { type: number }
+        hp_loss_no_crit: { type: number, description: "HP loss of one cast when no hit crits (hit rate still averaged, BR-DMG-04)" }
+        hp_loss_crit: { type: number, description: "HP loss of one cast when every hit crits: × (2 + crit_damage_bonus), BR-DMG-06" }
+        expected_hp_loss: { type: number, description: "Average over crits: hp_loss_no_crit × expected_crit_multiplier" }
 
     DamageEstimate:
       type: object
-      required: [class_slug, skill_id, skill_name, hit_rate, base_damage, damage_reduction_rate, special_multiplier, special_attack, expected_crit_multiplier, pvp_modifier, clauses, total_expected_hp_loss, warnings]
+      required: [class_slug, skill_id, skill_name, variant, hit_rate, base_damage, damage_reduction_rate, special_multiplier, special_attack, expected_crit_multiplier, pvp_modifier, clauses, total_hp_loss_no_crit, total_hp_loss_crit, total_expected_hp_loss, warnings]
       properties:
         class_slug: { type: string }
         skill_id: { type: integer }
         skill_name: { type: string }
+        variant: { type: integer, minimum: 1 }
         hit_rate: { type: number, description: "BR-DMG-03" }
         base_damage: { type: number, description: "Expected base damage per instance, BR-DMG-04" }
         damage_reduction_rate: { type: number, description: "0.30 base + SA bonus when applicable, BR-DMG-05" }
         special_attack: { type: string, enum: [none, back, down, air] }
         special_multiplier: { type: number, description: "BR-DMG-07" }
-        expected_crit_multiplier: { type: number, description: "1 + crit_rate × (1 + crit_damage_bonus), BR-DMG-06" }
+        expected_crit_multiplier: { type: number, description: "1 + min(1, skill crit_rate + crit_rate_bonus) × (1 + crit_damage_bonus), BR-DMG-06. Used for every clause: a clause crit_rate is the PvE rate." }
         pvp_modifier: { type: number }
         clauses:
           type: array
           items: { $ref: "#/components/schemas/ClauseEstimate" }
-        total_expected_hp_loss: { type: number }
+        total_hp_loss_no_crit: { type: number, description: "Sum of the included clauses' hp_loss_no_crit" }
+        total_hp_loss_crit: { type: number, description: "Sum of the included clauses' hp_loss_crit" }
+        total_expected_hp_loss: { type: number, description: "Sum of the included clauses' expected_hp_loss: the average HP loss of one cast" }
         warnings:
           type: array
           items: { type: string }
