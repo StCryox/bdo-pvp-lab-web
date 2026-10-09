@@ -210,7 +210,10 @@ export interface components {
             specs: string[];
             /** @example 10000 */
             cooldown_ms?: number | null;
-            /** @example 1 */
+            /**
+             * @description PvP crit rate of the skill (BR-DMG-06): a PvE-only CRI_POINT counts as 0
+             * @example 1
+             */
             crit_rate?: number | null;
             /** @example true */
             can_down_attack: boolean;
@@ -226,16 +229,37 @@ export interface components {
             /** @example 2 */
             clause_count: number;
             /**
-             * @description Sum of damage_multiplier × hits over clauses, selector aliases excluded (PvE)
+             * @description total_damage_multiplier of variant 1 (BR-PVP-05)
              * @example 340.74
              */
             total_damage_multiplier?: number | null;
             /**
-             * @description Sum of damage_multiplier × hits × pvp_kept_ratio over clauses with a PvP reduction, selector aliases excluded
+             * @description pvp_damage_multiplier of variant 1 (BR-PVP-05)
              * @example 78.76
              */
             pvp_damage_multiplier?: number | null;
+            /** @description One per PvP reduction of the skill (BR-PVP-05), from 1. Variants are alternatives (Prime: Wave Orb normal or with Martial Spirit), never added together. Empty for a skill without damage clause. */
+            variants: components["schemas"]["SkillVariant"][];
             dq_status: components["schemas"]["DqStatus"];
+        };
+        SkillVariant: {
+            /** @example 1 */
+            variant: number;
+            /**
+             * @description Damage clauses of the variant, selector aliases included
+             * @example 2
+             */
+            clause_count: number;
+            /**
+             * @description Sum of damage_multiplier × hits over the variant's clauses, selector aliases excluded (PvE)
+             * @example 340.74
+             */
+            total_damage_multiplier?: number | null;
+            /**
+             * @description Sum of damage_multiplier × hits × pvp_kept_ratio over the variant's clauses with a PvP reduction, selector aliases excluded
+             * @example 78.76
+             */
+            pvp_damage_multiplier?: number | null;
         };
         SkillDetail: components["schemas"]["SkillSummary"] & {
             /**
@@ -275,9 +299,20 @@ export interface components {
             pvp_kept_ratio?: number | null;
             /** @example 41.45 */
             pvp_damage_multiplier?: number | null;
-            /** @example 1 */
+            /**
+             * @description PvE crit rate from the damage maps; PvP estimates use the skill crit_rate (BR-DMG-06)
+             * @example 1
+             */
             crit_rate?: number | null;
-            /** @example null */
+            /**
+             * @description Variant of the skill the clause belongs to (BR-PVP-05)
+             * @example 1
+             */
+            variant: number;
+            /**
+             * @description no_pvp_reduction (BR-PVP-03), empty_pvp_reduction (BR-PVP-04) or ambiguous_pvp_reduction (BR-PVP-05)
+             * @example null
+             */
             dq_flag?: string | null;
         };
         /** @enum {string} */
@@ -288,6 +323,11 @@ export interface components {
             /** @description Effective PvP AP used by this skill (BR-DMG-02 simplified: the user enters it) */
             ap: number;
             accuracy: number;
+            /**
+             * @description Added to the clause or skill crit rate, capped at 1 (0.2 = +20 points), BR-DMG-06
+             * @default 0
+             */
+            crit_rate_bonus: number;
             /**
              * @description 0.2 = +20%
              * @default 0
@@ -329,6 +369,11 @@ export interface components {
         DamageEstimateRequest: {
             class_slug: string;
             skill_id: number;
+            /**
+             * @description Variant to estimate (BR-PVP-05); only its clauses count
+             * @default 1
+             */
+            variant: number;
             attacker: components["schemas"]["AttackerStats"];
             defender: components["schemas"]["DefenderStats"];
             situation: components["schemas"]["Situation"];
@@ -339,12 +384,18 @@ export interface components {
             clause_label: string;
             /** @description false when the clause is a selector alias (BR-DMG-13) or has no PvP reduction (BR-PVP-03, BR-PVP-04) */
             included: boolean;
+            /** @description HP loss of one cast when no hit crits (hit rate still averaged, BR-DMG-04) */
+            hp_loss_no_crit: number;
+            /** @description HP loss of one cast when every hit crits: × (2 + crit_damage_bonus), BR-DMG-06 */
+            hp_loss_crit: number;
+            /** @description Average over crits: hp_loss_no_crit × expected_crit_multiplier */
             expected_hp_loss: number;
         };
         DamageEstimate: {
             class_slug: string;
             skill_id: number;
             skill_name: string;
+            variant: number;
             /** @description BR-DMG-03 */
             hit_rate: number;
             /** @description Expected base damage per instance, BR-DMG-04 */
@@ -355,10 +406,15 @@ export interface components {
             special_attack: "none" | "back" | "down" | "air";
             /** @description BR-DMG-07 */
             special_multiplier: number;
-            /** @description 1 + crit_rate × (1 + crit_damage_bonus), BR-DMG-06 */
+            /** @description 1 + min(1, skill crit_rate + crit_rate_bonus) × (1 + crit_damage_bonus), BR-DMG-06. Used for every clause: a clause crit_rate is the PvE rate. */
             expected_crit_multiplier: number;
             pvp_modifier: number;
             clauses: components["schemas"]["ClauseEstimate"][];
+            /** @description Sum of the included clauses' hp_loss_no_crit */
+            total_hp_loss_no_crit: number;
+            /** @description Sum of the included clauses' hp_loss_crit */
+            total_hp_loss_crit: number;
+            /** @description Sum of the included clauses' expected_hp_loss: the average HP loss of one cast */
             total_expected_hp_loss: number;
             /**
              * @example [
@@ -578,6 +634,7 @@ export interface operations {
                  *       "attacker": {
                  *         "ap": 1085,
                  *         "accuracy": 1353,
+                 *         "crit_rate_bonus": 0,
                  *         "crit_damage_bonus": 0.2,
                  *         "back_attack_bonus": 0,
                  *         "down_attack_bonus": 0,
