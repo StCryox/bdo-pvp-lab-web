@@ -61,7 +61,7 @@ src/
 │  └─ queries.ts          # queryOptions factories + mutation hooks, one per operationId
 ├─ features/
 │  ├─ classes/ClassesPage.tsx
-│  ├─ skills/ClassSkillsPage.tsx  SkillDetailPage.tsx  DamageEstimator.tsx
+│  ├─ skills/ClassSkillsPage.tsx  SkillDetailPage.tsx  DamageEstimator.tsx  EstimateForm.tsx  Tooltip.tsx
 │  │         DqStatusBadge.tsx  Fact.tsx  specialAttacks.ts   # shared by the skills pages
 │  ├─ data-quality/DataQualityPage.tsx
 │  └─ not-found/NotFoundPage.tsx
@@ -86,9 +86,9 @@ Each component has a `*.test.tsx` next to it.
 | Route | Page | Content |
 |---|---|---|
 | `/` | ClassesPage | Grid of classes (name, specs, skill count). Header shows extract id and game builds from `/meta`. |
-| `/classes/:classSlug` | ClassSkillsPage | Spec tabs from the class specs (`?spec=` in the URL). Table: skill, cooldown, PvP damage multiplier, total damage multiplier, down/air, PvP CC, DQ status badge. Sorted as the API returns. |
-| `/classes/:classSlug/skills/:skillId` | SkillDetailPage | Skill facts, clauses table (multiplier, hits, PvP kept %, PvP multiplier, crit, DQ flag), PvE-only CC note, then `DamageEstimator`. |
-| (component) | DamageEstimator | Form: attacker (AP, accuracy, crit bonus, back/down/air bonus), defender (DR, evasion, SA DR rate), situation (target state, from behind, target in SA, PvP modifier). Defaults = contract example. Submit → `estimateDamage` mutation. Result: total expected HP loss, breakdown (hit rate, base, DR rate, special, crit, PvP modifier), per-clause table, warnings. Shows 422 problem detail inline. |
+| `/classes/:classSlug` | ClassSkillsPage | Spec tabs from the class specs (`?spec=` in the URL). Table: skill, cooldown, PvP damage multiplier, total damage multiplier, crit rate, down/air, PvP CC, DQ status badge (hover or focus shows what the status means). Sorted as the API returns, which lists only the highest rank of each skill (BR-CAT-04: Wave Orb III, not Wave Orb I and II). One row per skill variant (BR-PVP-05: `variants`, named "Skill · variant N" when a skill has several), with that variant's multipliers. Collapsible `EstimateForm` ("Estimate against a target"): on submit, adds "No crit", "Crit" (HP loss of one cast) and "Expected HP loss" (the average, explained in a tooltip) columns, one `estimateDamage` query per variant with damage (skills without damage send no request; a failed estimate shows "—" with the problem title). The inputs survive spec tab changes. The PvP damage, total damage, crit rate, no crit, crit and expected HP loss headers sort the table, one column at a time (highest first, then lowest first; rows without a value stay last). |
+| `/classes/:classSlug/skills/:skillId` | SkillDetailPage | Skill facts, clauses table (multiplier, hits, PvP kept %, PvP multiplier, PvE crit, DQ flag, variant when the skill has several), PvE-only CC note, then `DamageEstimator`. |
+| (component) | DamageEstimator | `EstimateForm`: attacker (AP, accuracy, crit rate bonus added to the skill crit rate and capped at 100% by the API, crit damage bonus, back/down/air bonus), defender (DR, evasion, SA DR rate); rates and bonuses are typed in % (90 = 90%) and sent as fractions, situation (target state, from behind, target in SA, PvP modifier). Defaults = contract example. Variant picker when the skill has several. Submit → `estimateDamage` mutation. Result: total expected HP loss (tooltip), HP loss without and with crit, breakdown (hit rate, base, DR rate, special, skill crit rate, expected crit ×, PvP modifier), per-clause table (no crit, crit, expected), warnings. Shows 422 problem detail inline. |
 | `/data-quality` | DataQualityPage | Metric cards from `/data-quality`, rule counts by severity, paginated issues table with filters (rule, severity, class) synced to the URL. Issue rows link to the skill page when `skill_id` is set. |
 | `*` | NotFound | |
 
