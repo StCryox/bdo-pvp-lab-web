@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react'
+import type { SubmitEvent } from 'react'
 import type { DamageEstimateRequest } from '../../api/queries'
 import type { components } from '../../api/schema'
 
@@ -83,7 +83,7 @@ interface EstimateFormProps {
 }
 
 export function EstimateForm({ onSubmit, pending = false, submitLabel }: EstimateFormProps) {
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     onSubmit(toInputs(new FormData(event.currentTarget)))
   }

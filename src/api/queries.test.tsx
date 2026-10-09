@@ -1,5 +1,5 @@
 import {
-  type FetchQueryOptions,
+  type QueryExecuteOptions,
   QueryClient,
   QueryClientProvider,
   type QueryKey,
@@ -35,10 +35,10 @@ const recordingClient = () => {
 }
 
 const requestedUrl = async <TData, TKey extends QueryKey>(
-  build: (client: ApiClient) => FetchQueryOptions<TData, Error, TData, TKey>,
+  build: (client: ApiClient) => QueryExecuteOptions<TData, Error, TData, TData, TKey>,
 ): Promise<string> => {
   const { client, requests } = recordingClient()
-  await new QueryClient().fetchQuery(build(client))
+  await new QueryClient().query(build(client))
   return requests[0]?.url ?? ''
 }
 
@@ -125,7 +125,7 @@ describe('damageEstimateQuery', () => {
   it('posts the estimate request', async () => {
     const { client, requests } = recordingClient()
 
-    await new QueryClient().fetchQuery(damageEstimateQuery(client, estimateBody))
+    await new QueryClient().query(damageEstimateQuery(client, estimateBody))
 
     expect(requests[0]?.method).toBe('POST')
     expect(requests[0]?.url).toBe('http://api.test/api/v1/damage/estimate')
