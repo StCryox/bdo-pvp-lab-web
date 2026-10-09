@@ -266,7 +266,7 @@ describe('ClassSkillsPage', () => {
     await estimateAllSkills(user)
 
     expect(await screen.findByLabelText('About expected HP loss')).toHaveAccessibleDescription(
-      /average HP the target loses per cast/,
+      /Average HP lost per cast/,
     )
   })
 
@@ -407,6 +407,32 @@ describe('ClassSkillsPage', () => {
       'descending',
     )
     expect(skillNames().slice(0, 2)).toEqual(['Wave Orb III', 'Wave of Light'])
+  })
+
+  it('sorts the skills by name, A to Z first, then Z to A', async () => {
+    const { user } = renderPage()
+
+    await screen.findByRole('table')
+    await user.click(screen.getByRole('button', { name: 'Skill' }))
+
+    expect(screen.getByRole('columnheader', { name: 'Skill' })).toHaveAttribute(
+      'aria-sort',
+      'ascending',
+    )
+    const aToZ = [
+      "Dragon's Maw · variant 1",
+      "Dragon's Maw · variant 2",
+      'Hurricane Kick',
+      'Prime: Pulverize',
+      'Seethe',
+      'Wave of Light',
+      'Wave Orb III',
+    ]
+    expect(skillNames()).toEqual(aToZ)
+
+    await user.click(screen.getByRole('button', { name: 'Skill' }))
+
+    expect(skillNames()).toEqual(aToZ.toReversed())
   })
 
   it('sorts by one column at a time', async () => {

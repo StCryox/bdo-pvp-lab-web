@@ -205,7 +205,7 @@ describe('DamageEstimator', () => {
     await user.click(estimate())
 
     expect(await screen.findByLabelText('About expected HP loss')).toHaveAccessibleDescription(
-      /average HP the target loses per cast/,
+      /Average HP lost per cast/,
     )
   })
 

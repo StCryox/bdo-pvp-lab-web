@@ -69,13 +69,14 @@ interface Row {
 }
 
 const sortValues = {
+  name: ({ skill, variant }: Row) => rowName(skill, variant),
   pvp: ({ skill, variant }: Row) => (variant ?? skill).pvp_damage_multiplier,
   total: ({ skill, variant }: Row) => (variant ?? skill).total_damage_multiplier,
   critRate: ({ skill }: Row) => skill.crit_rate,
   noCrit: ({ estimate }: Row) => estimate?.data?.total_hp_loss_no_crit,
   crit: ({ estimate }: Row) => estimate?.data?.total_hp_loss_crit,
   expected: ({ estimate }: Row) => estimate?.data?.total_expected_hp_loss,
-} satisfies Record<string, (row: Row) => number | null | undefined>
+} satisfies Record<string, (row: Row) => string | number | null | undefined>
 
 type SortColumn = keyof typeof sortValues
 type SortDirection = 'descending' | 'ascending'
@@ -95,32 +96,45 @@ function sortRows(rows: Row[], sort: Sort | undefined): Row[] {
     if (valueA === undefined || valueB === undefined) {
       return Number(valueA === undefined) - Number(valueB === undefined)
     }
-    return (valueA - valueB) * direction
+    const order =
+      typeof valueA === 'string' || typeof valueB === 'string'
+        ? String(valueA).localeCompare(String(valueB))
+        : valueA - valueB
+    return order * direction
   })
 }
 
-// A first click sorts highest first, the next ones toggle the direction.
-const nextSort = (sort: Sort | undefined, column: SortColumn): Sort => ({
-  column,
-  direction:
-    sort?.column === column && sort.direction === 'descending' ? 'ascending' : 'descending',
-})
+// A first click sorts names A to Z and numbers highest first; the next ones toggle the direction.
+function nextSort(sort: Sort | undefined, column: SortColumn): Sort {
+  if (sort?.column === column) {
+    return { column, direction: sort.direction === 'descending' ? 'ascending' : 'descending' }
+  }
+  return { column, direction: column === 'name' ? 'ascending' : 'descending' }
+}
 
 interface SortableHeaderProps {
   label: string
   column: SortColumn
   sort: Sort | undefined
   onSort: (column: SortColumn) => void
+  align?: 'left' | 'right'
   children?: ReactNode
 }
 
-function SortableHeader({ label, column, sort, onSort, children }: SortableHeaderProps) {
+function SortableHeader({
+  label,
+  column,
+  sort,
+  onSort,
+  align = 'right',
+  children,
+}: SortableHeaderProps) {
   const direction = sort?.column === column ? sort.direction : undefined
   return (
     <th
       scope="col"
       aria-sort={direction}
-      className="py-2 pr-4 text-right font-medium whitespace-nowrap"
+      className={`py-2 pr-4 font-medium whitespace-nowrap ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       <button type="button" onClick={() => onSort(column)} className="font-medium hover:text-white">
         {label}
@@ -192,9 +206,7 @@ function SkillsTable({ classSlug, spec, estimateInputs, nameFilter }: SkillsTabl
       <table className="w-full text-sm">
         <thead className="text-left text-zinc-400">
           <tr className="border-b border-zinc-800">
-            <th scope="col" className="py-2 pr-4 font-medium">
-              Skill
-            </th>
+            <SortableHeader label="Skill" column="name" sort={sort} onSort={sortBy} align="left" />
             <th scope="col" className="py-2 pr-4 text-right font-medium">
               Cooldown
             </th>

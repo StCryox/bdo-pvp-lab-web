@@ -13,7 +13,7 @@ type ClauseEstimate = components['schemas']['ClauseEstimate']
 type SkillVariant = components['schemas']['SkillVariant']
 
 export const EXPECTED_HP_LOSS_MEANING =
-  'The average HP the target loses per cast, over hits and crits. Each hit crits with the skill PvP crit rate plus your crit rate bonus (capped at 100%): average = No crit × (1 − crit rate) + Crit × crit rate. No crit and Crit are the same cast when no hit or every hit crits.'
+  'Average HP lost per cast: No crit × (1 − crit rate) + Crit × crit rate. Crit rate = skill PvP crit rate + your bonus, max 100%.'
 
 const clauseKey = (clause: Pick<DamageClause, 'source_order' | 'clause_index'>) =>
   `${clause.source_order}-${clause.clause_index}`
