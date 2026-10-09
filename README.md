@@ -21,7 +21,7 @@ Vite, React 19 with the React Compiler, TypeScript (strict), React Router 7, Tan
 
 ## Getting started
 
-Requires Node 24 (see `engines` in `package.json`) and, for the mock API, Docker.
+Requires Node 24 or 26+ (see `engines` in `package.json`) and, for the mock API, Docker.
 
 ```bash
 npm install

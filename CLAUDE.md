@@ -45,7 +45,7 @@ A small, clean consumer of the data product: browse classes and skills, see PvP 
 | `sync:contract` | `cp ${BDO_API_REPO:-../bdo-pvp-lab-api}/contracts/openapi.yaml contracts/openapi.yaml` |
 | `mock` | `docker run --rm -p 8080:8080 -v ./wiremock/mappings:/home/wiremock/mappings -v ./src/test/fixtures:/home/wiremock/__files wiremock/wiremock:latest --global-response-templating --enable-stub-cors` |
 
-`VITE_API_BASE_URL` selects the backend: `http://localhost:8080` (WireMock) or `http://localhost:8000` (real API). Default in `.env.development`: WireMock.
+`VITE_API_BASE_URL` selects the backend: `http://localhost:8080` (WireMock) or `http://localhost:8000` (real API). Default in `.env.development`: WireMock. For the real API, set it in `.env.development.local` (git-ignored: recreate it on every fresh clone, then restart `npm run dev`).
 
 ## Layout
 ```
@@ -58,6 +58,7 @@ src/
 │  ├─ schema.d.ts         # generated, do not edit
 │  ├─ client.ts           # createClient<paths>({ baseUrl, fetch })
 │  ├─ ApiProvider.tsx     # React context holding the client (tests inject a fake fetch)
+│  ├─ apiContext.ts       # the context and its useApiClient hook
 │  └─ queries.ts          # queryOptions factories + mutation hooks, one per operationId
 ├─ features/
 │  ├─ classes/ClassesPage.tsx
