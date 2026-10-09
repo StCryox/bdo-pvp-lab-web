@@ -576,7 +576,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Skills sorted by pvp_damage_multiplier descending (nulls last), then skill_name */
+            /** @description Skills sorted by pvp_damage_multiplier descending (nulls last), then skill_name. Only the highest rank listed of a ranked skill is returned (BR-CAT-04): Wave Orb III hides Wave Orb I and II. The lower ranks stay available by id. */
             200: {
                 headers: {
                     [name: string]: unknown;

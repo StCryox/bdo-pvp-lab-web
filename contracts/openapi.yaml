@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BDO PvP Lab API
-  version: 2.0.0
+  version: 2.1.0
   description: |
     Read-only access to the BDO skill data product (dbt marts on DuckDB) and a PvP damage estimator.
     Contract-first: this file is the source of truth for `api/` (implementation) and `web/` (types + WireMock stubs).
@@ -73,7 +73,10 @@ paths:
           schema: { type: string }
       responses:
         "200":
-          description: Skills sorted by pvp_damage_multiplier descending (nulls last), then skill_name
+          description: >
+            Skills sorted by pvp_damage_multiplier descending (nulls last), then skill_name. Only the highest
+            rank listed of a ranked skill is returned (BR-CAT-04): Wave Orb III hides Wave Orb I and II. The
+            lower ranks stay available by id.
           content:
             application/json:
               schema:
