@@ -148,9 +148,13 @@ interface SkillsTableProps {
   classSlug: string
   spec: string | undefined
   estimateInputs: EstimateInputs | undefined
+  nameFilter: string
 }
 
-function SkillsTable({ classSlug, spec, estimateInputs }: SkillsTableProps) {
+const matchesName = (skill: SkillSummary, filter: string) =>
+  skill.skill_name.toLowerCase().includes(filter.trim().toLowerCase())
+
+function SkillsTable({ classSlug, spec, estimateInputs, nameFilter }: SkillsTableProps) {
   const client = useApiClient()
   const { data, error, isPending } = useQuery(classSkillsQuery(client, classSlug, spec))
   const skillRows = variantRows(data ?? [])
@@ -175,9 +179,14 @@ function SkillsTable({ classSlug, spec, estimateInputs }: SkillsTableProps) {
   if (error) return <ErrorState error={error} />
   if (data.length === 0) return <p className="text-zinc-400">No skill for this spec.</p>
   const rows = sortRows(
-    skillRows.map((row, index) => ({ ...row, estimate: estimates[index] })),
+    skillRows
+      .map((row, index) => ({ ...row, estimate: estimates[index] }))
+      .filter(({ skill }) => matchesName(skill, nameFilter)),
     sort,
   )
+  if (rows.length === 0) {
+    return <p className="text-zinc-400">No skill matches “{nameFilter}”.</p>
+  }
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -261,6 +270,7 @@ export function ClassSkillsPage() {
   const { data: classes } = useQuery(classesQuery(useApiClient()))
   const playerClass = classes?.find((c) => c.class_slug === classSlug)
   const [estimateInputs, setEstimateInputs] = useState<EstimateInputs>()
+  const [nameFilter, setNameFilter] = useState('')
 
   return (
     <section className="space-y-4">
@@ -272,7 +282,22 @@ export function ClassSkillsPage() {
           <EstimateForm onSubmit={setEstimateInputs} submitLabel="Estimate all skills" />
         </div>
       </details>
-      <SkillsTable classSlug={classSlug} spec={spec} estimateInputs={estimateInputs} />
+      <label className="block max-w-xs text-sm">
+        <span className="mb-1 block text-zinc-400">Skill name</span>
+        <input
+          type="search"
+          value={nameFilter}
+          onChange={(event) => setNameFilter(event.target.value)}
+          placeholder="Wave Orb"
+          className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1"
+        />
+      </label>
+      <SkillsTable
+        classSlug={classSlug}
+        spec={spec}
+        estimateInputs={estimateInputs}
+        nameFilter={nameFilter}
+      />
     </section>
   )
 }

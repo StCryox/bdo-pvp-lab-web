@@ -189,6 +189,45 @@ describe('ClassSkillsPage', () => {
     expect(await screen.findByText('No skill for this spec.')).toBeInTheDocument()
   })
 
+  it('filters the skills by name, ignoring case', async () => {
+    const { user } = renderPage()
+
+    await screen.findByRole('table')
+    await user.type(screen.getByLabelText('Skill name'), 'wave')
+
+    expect(skillNames()).toEqual(['Wave Orb III', 'Wave of Light'])
+  })
+
+  it('keeps every variant of a skill matching the name filter', async () => {
+    const { user } = renderPage()
+
+    await screen.findByRole('table')
+    await user.type(screen.getByLabelText('Skill name'), "dragon's")
+
+    expect(skillNames()).toEqual(["Dragon's Maw · variant 1", "Dragon's Maw · variant 2"])
+  })
+
+  it('says so when no skill matches the name filter', async () => {
+    const { user } = renderPage()
+
+    await screen.findByRole('table')
+    await user.type(screen.getByLabelText('Skill name'), 'unknown')
+
+    expect(screen.getByText('No skill matches “unknown”.')).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+  })
+
+  it('keeps the name filter when switching spec tab', async () => {
+    const { user } = renderPage()
+
+    await screen.findByRole('table')
+    await user.type(screen.getByLabelText('Skill name'), 'wave')
+    await user.click(screen.getByRole('link', { name: 'Succession' }))
+
+    expect(await screen.findByText('No skill matches “wave”.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Skill name')).toHaveValue('wave')
+  })
+
   it('has no estimate column until the user estimates', async () => {
     renderPage()
 
