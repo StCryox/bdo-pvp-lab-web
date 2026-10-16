@@ -103,7 +103,7 @@ Each component has a `*.test.tsx` next to it.
 - ClassesPage renders the fixture classes and links to `/classes/mystic`.
 - ClassSkillsPage switches spec tab and updates the URL.
 - SkillDetailPage shows the clauses of 2786 with PvP kept 21.37%.
-- DamageEstimator submits the default form and shows total 2706.32; shows the 422 detail on error.
+- DamageEstimator submits the default form and shows total 1424.25 (variant 1 of Wave Orb III; variant 2 gives 1282.07, never summed, BR-PVP-05); shows the 422 detail on error.
 - DataQualityPage filters by severity and paginates.
 - 404 problem → error state with the problem title.
 

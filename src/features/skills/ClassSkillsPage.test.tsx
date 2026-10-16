@@ -40,7 +40,8 @@ describe('ClassSkillsPage', () => {
       "Dragon's Maw · variant 1",
       "Dragon's Maw · variant 2",
       'Prime: Pulverize',
-      'Wave Orb III',
+      'Wave Orb III · variant 1',
+      'Wave Orb III · variant 2',
       'Hurricane Kick',
       'Wave of Light',
       'Seethe',
@@ -56,18 +57,28 @@ describe('ClassSkillsPage', () => {
     expect([second[2]?.textContent, second[3]?.textContent]).toEqual(['60.00', '200.00'])
   })
 
+  it('shows the variants of Wave Orb III as alternatives, never summed (BR-PVP-05)', async () => {
+    renderPage()
+
+    await screen.findByRole('table')
+    const first = rowCells('Wave Orb III · variant 1')
+    const second = rowCells('Wave Orb III · variant 2')
+    expect([first[2]?.textContent, first[3]?.textContent]).toEqual(['41.45', '193.96'])
+    expect([second[2]?.textContent, second[3]?.textContent]).toEqual(['37.31', '146.78'])
+  })
+
   it('shows the facts of each skill with fixed decimals', async () => {
     renderPage()
 
-    const row = (await screen.findByRole('link', { name: 'Wave Orb III' })).closest(
+    const row = (await screen.findByRole('link', { name: 'Wave Orb III · variant 1' })).closest(
       'tr',
     ) as HTMLElement
     const cells = within(row).getAllByRole('cell')
     expect(cells.slice(0, 7).map((cell) => cell.textContent)).toEqual([
-      'Wave Orb III',
+      'Wave Orb III · variant 1',
       '10.0 s',
-      '78.76',
-      '340.74',
+      '41.45',
+      '193.96',
       '100.00%',
       'Down',
       '—',
@@ -107,6 +118,7 @@ describe('ClassSkillsPage', () => {
       '100.00%',
       '50.00%',
       '100.00%',
+      '100.00%',
       '—',
       '100.00%',
       '—',
@@ -116,7 +128,7 @@ describe('ClassSkillsPage', () => {
   it('links each skill to its detail page', async () => {
     renderPage()
 
-    expect(await screen.findByRole('link', { name: 'Wave Orb III' })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: 'Wave Orb III · variant 2' })).toHaveAttribute(
       'href',
       '/classes/mystic/skills/2786',
     )
@@ -195,7 +207,11 @@ describe('ClassSkillsPage', () => {
     await screen.findByRole('table')
     await user.type(screen.getByLabelText('Skill name'), 'wave')
 
-    expect(skillNames()).toEqual(['Wave Orb III', 'Wave of Light'])
+    expect(skillNames()).toEqual([
+      'Wave Orb III · variant 1',
+      'Wave Orb III · variant 2',
+      'Wave of Light',
+    ])
   })
 
   it('keeps every variant of a skill matching the name filter', async () => {
@@ -245,7 +261,9 @@ describe('ClassSkillsPage', () => {
     expect(
       await screen.findByRole('columnheader', { name: /^Expected HP loss/ }),
     ).toBeInTheDocument()
-    await waitFor(() => expect(estimateCell('Wave Orb III')).toHaveTextContent('2706.32'))
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 1')).toHaveTextContent('1424.25'),
+    )
   })
 
   it('shows the HP loss of one cast without and with crit', async () => {
@@ -255,9 +273,14 @@ describe('ClassSkillsPage', () => {
 
     expect(await screen.findByRole('columnheader', { name: 'No crit' })).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: 'Crit' })).toBeInTheDocument()
-    await waitFor(() => expect(estimateCell('Wave Orb III')).toHaveTextContent('2706.32'))
-    const cells = rowCells('Wave Orb III')
-    expect([cells[8]?.textContent, cells[9]?.textContent]).toEqual(['1230.15', '2706.32'])
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 1')).toHaveTextContent('1424.25'),
+    )
+    const cells = rowCells('Wave Orb III · variant 1')
+    expect([cells[8]?.textContent, cells[9]?.textContent]).toEqual(['647.39', '1424.25'])
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 2')).toHaveTextContent('1282.07'),
+    )
   })
 
   it('explains the expected HP loss in a tooltip', async () => {
@@ -278,13 +301,16 @@ describe('ClassSkillsPage', () => {
     await user.type(screen.getByLabelText('DR'), '800')
     await user.click(screen.getByRole('button', { name: 'Estimate all skills' }))
 
-    await waitFor(() => expect(estimateCell('Wave Orb III')).toHaveTextContent('2706.32'))
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 1')).toHaveTextContent('1424.25'),
+    )
     const posts = requests.filter((r) => r.method === 'POST')
     const bodies = await Promise.all(posts.map((r) => r.json()))
     expect(bodies.map((b) => `${b.skill_id}/${b.variant}`).sort()).toEqual([
       '2731/1',
       '2754/1',
       '2786/1',
+      '2786/2',
       '2794/1',
       '2801/1',
       '2801/2',
@@ -297,7 +323,9 @@ describe('ClassSkillsPage', () => {
 
     await estimateAllSkills(user)
 
-    await waitFor(() => expect(estimateCell('Wave Orb III')).toHaveTextContent('2706.32'))
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 1')).toHaveTextContent('1424.25'),
+    )
     expect(estimateCell('Seethe')).toHaveTextContent('—')
     await waitFor(() => expect(estimateCell('Hurricane Kick')).toHaveTextContent('—'))
     expect(estimateCell('Hurricane Kick')).toHaveAttribute('title', 'Skill not found')
@@ -310,7 +338,9 @@ describe('ClassSkillsPage', () => {
     await user.click(screen.getByRole('link', { name: 'Awakening' }))
 
     await screen.findByRole('link', { name: "Dragon's Maw · variant 1" })
-    await waitFor(() => expect(estimateCell('Wave Orb III')).toHaveTextContent('2706.32'))
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 1')).toHaveTextContent('1424.25'),
+    )
   })
 
   it('sorts the skills by expected HP loss, highest first, then lowest first', async () => {
@@ -318,11 +348,15 @@ describe('ClassSkillsPage', () => {
 
     await estimateAllSkills(user)
     await waitFor(() => expect(estimateCell('Wave of Light')).toHaveTextContent('1256.50'))
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 2')).toHaveTextContent('1282.07'),
+    )
     await user.click(screen.getByRole('button', { name: 'Expected HP loss' }))
 
     expect(expectedHeader()).toHaveAttribute('aria-sort', 'descending')
     expect(skillNames()).toEqual([
-      'Wave Orb III',
+      'Wave Orb III · variant 1',
+      'Wave Orb III · variant 2',
       'Wave of Light',
       "Dragon's Maw · variant 1",
       "Dragon's Maw · variant 2",
@@ -334,7 +368,11 @@ describe('ClassSkillsPage', () => {
     await user.click(screen.getByRole('button', { name: 'Expected HP loss' }))
 
     expect(expectedHeader()).toHaveAttribute('aria-sort', 'ascending')
-    expect(skillNames().slice(0, 2)).toEqual(['Wave of Light', 'Wave Orb III'])
+    expect(skillNames().slice(0, 3)).toEqual([
+      'Wave of Light',
+      'Wave Orb III · variant 2',
+      'Wave Orb III · variant 1',
+    ])
   })
 
   it.each([
@@ -343,8 +381,9 @@ describe('ClassSkillsPage', () => {
       [
         "Dragon's Maw · variant 1",
         'Prime: Pulverize',
-        'Wave Orb III',
         "Dragon's Maw · variant 2",
+        'Wave Orb III · variant 1',
+        'Wave Orb III · variant 2',
         'Hurricane Kick',
         'Wave of Light',
         'Seethe',
@@ -355,10 +394,11 @@ describe('ClassSkillsPage', () => {
       'Total damage ×',
       [
         'Prime: Pulverize',
-        'Wave Orb III',
         "Dragon's Maw · variant 1",
         'Wave of Light',
         "Dragon's Maw · variant 2",
+        'Wave Orb III · variant 1',
+        'Wave Orb III · variant 2',
         'Hurricane Kick',
         'Seethe',
       ],
@@ -369,7 +409,8 @@ describe('ClassSkillsPage', () => {
       [
         "Dragon's Maw · variant 1",
         "Dragon's Maw · variant 2",
-        'Wave Orb III',
+        'Wave Orb III · variant 1',
+        'Wave Orb III · variant 2',
         'Wave of Light',
         'Prime: Pulverize',
         'Hurricane Kick',
@@ -400,13 +441,20 @@ describe('ClassSkillsPage', () => {
 
     await estimateAllSkills(user)
     await waitFor(() => expect(estimateCell('Wave of Light')).toHaveTextContent('1256.50'))
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 2')).toHaveTextContent('1282.07'),
+    )
     await user.click(screen.getByRole('button', { name: column }))
 
     expect(screen.getByRole('columnheader', { name: column })).toHaveAttribute(
       'aria-sort',
       'descending',
     )
-    expect(skillNames().slice(0, 2)).toEqual(['Wave Orb III', 'Wave of Light'])
+    expect(skillNames().slice(0, 3)).toEqual([
+      'Wave Orb III · variant 1',
+      'Wave Orb III · variant 2',
+      'Wave of Light',
+    ])
   })
 
   it('sorts the skills by name, A to Z first, then Z to A', async () => {
@@ -426,7 +474,8 @@ describe('ClassSkillsPage', () => {
       'Prime: Pulverize',
       'Seethe',
       'Wave of Light',
-      'Wave Orb III',
+      'Wave Orb III · variant 1',
+      'Wave Orb III · variant 2',
     ]
     expect(skillNames()).toEqual(aToZ)
 
@@ -453,7 +502,9 @@ describe('ClassSkillsPage', () => {
     const { user } = renderPage()
 
     await estimateAllSkills(user)
-    await waitFor(() => expect(estimateCell('Wave Orb III')).toHaveTextContent('2706.32'))
+    await waitFor(() =>
+      expect(estimateCell('Wave Orb III · variant 1')).toHaveTextContent('1424.25'),
+    )
 
     expect(expectedHeader()).not.toHaveAttribute('aria-sort')
     expect(skillNames()[0]).toBe("Dragon's Maw · variant 1")

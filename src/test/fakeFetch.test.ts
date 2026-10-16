@@ -51,12 +51,21 @@ describe('createFakeFetch', () => {
       class_slug: 'mystic',
       skill_id: 2786,
     })
+    const secondVariant = await post(fetch, '/api/v1/damage/estimate', {
+      class_slug: 'mystic',
+      skill_id: 2786,
+      variant: 2,
+    })
     const notEstimable = await post(fetch, '/api/v1/damage/estimate', {
       class_slug: 'mystic',
       skill_id: 2722,
     })
 
-    expect(await ok.json()).toMatchObject({ total_expected_hp_loss: 2706.32 })
+    expect(await ok.json()).toMatchObject({ variant: 1, total_expected_hp_loss: 1424.25 })
+    expect(await secondVariant.json()).toMatchObject({
+      variant: 2,
+      total_expected_hp_loss: 1282.07,
+    })
     expect(notEstimable.status).toBe(422)
   })
 

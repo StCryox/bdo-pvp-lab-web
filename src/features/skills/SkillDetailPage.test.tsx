@@ -47,8 +47,8 @@ describe('SkillDetailPage', () => {
     expect(fact('Down / air')).toHaveTextContent('Down')
     expect(fact('Max targets')).toHaveTextContent('10')
     expect(fact('PvP CC')).toHaveTextContent('—')
-    expect(fact('PvP damage ×')).toHaveTextContent('78.76')
-    expect(fact('Total damage ×')).toHaveTextContent('340.74')
+    expect(fact('PvP damage ×')).toHaveTextContent('41.45')
+    expect(fact('Total damage ×')).toHaveTextContent('193.96')
     expect(fact('DQ status')).toHaveTextContent('OK')
   })
 
@@ -57,8 +57,8 @@ describe('SkillDetailPage', () => {
 
     await screen.findByRole('table', { name: 'Damage clauses' })
     expect(clauseRows()).toEqual([
-      ['1', 'Base damage', 'DAM_ATT_2', '96.98', '2', '21.37%', '41.45', '100.00%', '—'],
-      ['2', 'Extra damage', 'DAM_ATT_2', '73.39', '2', '25.42%', '37.31', '100.00%', '—'],
+      ['1', 'Base damage', 'DAM_ATT_2', '96.98', '2', '21.37%', '41.45', '100.00%', '—', '1'],
+      ['2', 'Extra damage', 'DAM_ATT_2', '73.39', '2', '25.42%', '37.31', '100.00%', '—', '2'],
     ])
   })
 
@@ -69,33 +69,7 @@ describe('SkillDetailPage', () => {
   })
 
   it('shows the variant of each clause when the skill has several', async () => {
-    const skill = await import('../../test/fixtures/skill-2786.json')
-    const [first, second] = skill.clauses
-    renderPage('/classes/mystic/skills/2786', [
-      {
-        method: 'GET',
-        path: '/api/v1/classes/mystic/skills/2786',
-        status: 200,
-        body: {
-          ...skill.default,
-          variants: [
-            {
-              variant: 1,
-              clause_count: 1,
-              total_damage_multiplier: 193.96,
-              pvp_damage_multiplier: 41.45,
-            },
-            {
-              variant: 2,
-              clause_count: 1,
-              total_damage_multiplier: 146.78,
-              pvp_damage_multiplier: 37.31,
-            },
-          ],
-          clauses: [first, { ...second, variant: 2 }],
-        },
-      },
-    ])
+    renderPage()
 
     await screen.findByRole('table', { name: 'Damage clauses' })
     expect(screen.getByRole('columnheader', { name: 'Variant' })).toBeInTheDocument()
@@ -104,7 +78,7 @@ describe('SkillDetailPage', () => {
   })
 
   it('shows no variant column for a skill with one variant', async () => {
-    renderPage()
+    renderPage('/classes/mystic/skills/2794')
 
     await screen.findByRole('table', { name: 'Damage clauses' })
     expect(screen.queryByRole('columnheader', { name: 'Variant' })).not.toBeInTheDocument()
@@ -123,7 +97,7 @@ describe('SkillDetailPage', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Estimate damage' }))
 
-    expect(await screen.findByText('2706.32', { selector: 'span' })).toBeInTheDocument()
+    expect(await screen.findByText('1424.25', { selector: 'span' })).toBeInTheDocument()
   })
 
   it('flags a clause without PvP reduction', async () => {
