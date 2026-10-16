@@ -1,5 +1,7 @@
 # BDO PvP Lab (web)
 
+> Archived version (dbt + DuckDB). The current version lives on `main`.
+
 The React app of BDO PvP Lab: browse Black Desert Online classes and skills, see the PvP damage of each skill, estimate the damage of a skill on a target, and check the data quality of the extract behind it.
 
 The data is built by [`bdo-pvp-lab-pipeline`](https://github.com/StCryox/bdo-pvp-lab-pipeline) and served by [`bdo-pvp-lab-api`](https://github.com/StCryox/bdo-pvp-lab-api). This app only talks to that API, through its OpenAPI contract, and runs without it against WireMock stubs.
