@@ -152,6 +152,7 @@ Never mark a gate ✅ that you did not run. If a gate fails and can't be fixed h
 - Small, reviewable diffs. Over ~200 lines or dozens of files: propose a split.
 - Micro-commits in conventional format: `feat:`, `fix:`, `test:`, `chore:`, `refactor:`, `docs:`. Scope by feature when useful: `feat(skills): add damage estimator`.
 - **Never** add a Claude Code signature or watermark (`Co-Authored-By: Claude`, `Generated with Claude Code`) to commits or PRs.
+- Commit directly on `main`.
 - Never `git push`. Pushing is the developer's decision; pushing to `main` always needs explicit confirmation.
 - Never create a branch with `git checkout -b <new> origin/main`; use `git switch -c <new> --no-track origin/main` and check the upstream with `git rev-parse --abbrev-ref --symbolic-full-name @{u}`.
 - No regression. If a change conflicts with existing code, ask before continuing.
