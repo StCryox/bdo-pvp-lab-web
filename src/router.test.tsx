@@ -14,7 +14,9 @@ describe('routes', () => {
   it('shows the skills of a class', async () => {
     renderRoutes(routes, { route: '/classes/mystic' })
 
-    expect(await screen.findByRole('link', { name: 'Wave Orb III' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('link', { name: 'Wave Orb III · variant 1' }),
+    ).toBeInTheDocument()
   })
 
   it('shows the detail of a skill', async () => {

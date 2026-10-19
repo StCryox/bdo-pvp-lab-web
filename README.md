@@ -44,12 +44,20 @@ The backend is selected with `VITE_API_BASE_URL`. `.env.development` points at W
 
 Without this file the app calls WireMock on port 8080. If WireMock is not running, the pages stay empty and the browser console reports a CORS error, although the API on port 8000 works.
 
+## Deployment
+
+The app deploys on Netlify (`netlify.toml`). Set `VITE_API_BASE_URL` to the public API URL and add the Netlify URL to the API's `BDO_API_CORS_ORIGINS`: see [docs/DEPLOY.md](docs/DEPLOY.md). A production build needs the variable:
+
+```bash
+VITE_API_BASE_URL=http://localhost:8000 npm run build
+```
+
 ## Scripts
 
 | Script                  | What it does                                                     |
 | ----------------------- | ---------------------------------------------------------------- |
 | `npm run dev`           | Dev server                                                       |
-| `npm run build`         | Type-check and production build                                  |
+| `npm run build`         | Type-check and production build (needs `VITE_API_BASE_URL`)      |
 | `npm run typecheck`     | Type-check only                                                  |
 | `npm test`              | Test suite                                                       |
 | `npm run lint`          | ESLint                                                           |
@@ -85,6 +93,7 @@ src/
 ├─ components/      # layout and shared UI
 ├─ features/        # one folder per page
 └─ test/            # render helpers, fake fetch, fixtures
+config/             # build-time config: the Netlify CSP headers
 wiremock/mappings/  # one mapping per endpoint and error case
 contracts/          # vendored OpenAPI contract
 ```

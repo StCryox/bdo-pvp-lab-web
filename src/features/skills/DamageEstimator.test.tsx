@@ -30,13 +30,13 @@ const clause = (
 })
 
 const singleVariant: SkillVariant[] = [
-  { variant: 1, clause_count: 2, total_damage_multiplier: 340.74, pvp_damage_multiplier: 78.76 },
+  { variant: 1, clause_count: 1, total_damage_multiplier: 193.96, pvp_damage_multiplier: 41.45 },
 ]
 
 const renderEstimator = (
   skillId = 2786,
   overrides: FakeResponseOverride[] = [],
-  clauses: DamageClause[] = [clause(1, 1, 'Base damage'), clause(2, 2, 'Extra damage')],
+  clauses: DamageClause[] = [clause(1, 1, 'Base damage')],
   variants: SkillVariant[] = singleVariant,
 ) =>
   renderWithProviders(
@@ -109,7 +109,7 @@ describe('DamageEstimator', () => {
 
     await user.click(estimate())
 
-    await screen.findByText('2706.32', { selector: 'span' })
+    await screen.findByText('1424.25', { selector: 'span' })
     const post = requests.find((r) => r.method === 'POST')
     expect(await post?.json()).toEqual({
       class_slug: 'mystic',
@@ -144,7 +144,7 @@ describe('DamageEstimator', () => {
     await user.click(screen.getByLabelText('Target in super armor'))
     await user.click(estimate())
 
-    await screen.findByText('2706.32', { selector: 'span' })
+    await screen.findByText('1424.25', { selector: 'span' })
     const body = await requests.find((r) => r.method === 'POST')?.json()
     expect(body.attacker.ap).toBe(1200)
     expect(body.situation).toMatchObject({
@@ -159,7 +159,7 @@ describe('DamageEstimator', () => {
 
     await user.click(estimate())
 
-    expect(await screen.findByText('2706.32', { selector: 'span' })).toBeInTheDocument()
+    expect(await screen.findByText('1424.25', { selector: 'span' })).toBeInTheDocument()
     expect(fact('Hit rate')).toHaveTextContent('100.00%')
     expect(fact('Base damage')).toHaveTextContent('345.00')
     expect(fact('DR rate')).toHaveTextContent('30.00%')
@@ -173,7 +173,7 @@ describe('DamageEstimator', () => {
 
     await user.click(estimate())
 
-    await screen.findByText('2706.32', { selector: 'span' })
+    await screen.findByText('1424.25', { selector: 'span' })
     expect(fact('Crit rate')).toHaveTextContent('100.00%')
   })
 
@@ -185,7 +185,6 @@ describe('DamageEstimator', () => {
     await screen.findByRole('table', { name: 'Expected HP loss per clause' })
     expect(clauseEstimateRows()).toEqual([
       ['1', 'Base damage', 'Yes', '647.39', '1424.25', '1424.25'],
-      ['2', 'Extra damage', 'Yes', '582.76', '1282.07', '1282.07'],
     ])
   })
 
@@ -194,9 +193,9 @@ describe('DamageEstimator', () => {
 
     await user.click(estimate())
 
-    await screen.findByText('2706.32', { selector: 'span' })
-    expect(fact('No crit')).toHaveTextContent('1230.15')
-    expect(fact('Crit')).toHaveTextContent('2706.32')
+    await screen.findByText('1424.25', { selector: 'span' })
+    expect(fact('No crit')).toHaveTextContent('647.39')
+    expect(fact('Crit')).toHaveTextContent('1424.25')
   })
 
   it('explains the expected HP loss in a tooltip', async () => {
@@ -219,14 +218,14 @@ describe('DamageEstimator', () => {
     const { requests, user } = renderEstimator(
       2786,
       [],
-      [clause(1, 1, 'Base damage'), clause(2, 2, 'Martial Spirit damage', false, 2)],
+      [clause(1, 1, 'Base damage'), clause(2, 2, 'Extra damage', false, 2)],
       [
         ...singleVariant,
         {
           variant: 2,
           clause_count: 1,
-          total_damage_multiplier: 342.74,
-          pvp_damage_multiplier: 113.69,
+          total_damage_multiplier: 146.78,
+          pvp_damage_multiplier: 37.31,
         },
       ],
     )
@@ -234,7 +233,7 @@ describe('DamageEstimator', () => {
     await user.selectOptions(screen.getByLabelText('Variant'), 'Variant 2')
     await user.click(estimate())
 
-    await screen.findByText('2706.32', { selector: 'span' })
+    expect(await screen.findByText('1282.07', { selector: 'span' })).toBeInTheDocument()
     const body = await requests.find((r) => r.method === 'POST')?.json()
     expect(body.variant).toBe(2)
   })

@@ -16,7 +16,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 |---|---|---|---|---|
 | `npm run typecheck` | `npm test` | `npm run lint` | `npm run format:check` | `npm audit` |
 
-Dev server: `npm run dev` (port 5173). Mock: `npm run mock` (WireMock on port 8080, needs Docker).
+Dev server: `npm run dev` (port 5173). Mock: `npm run mock` (WireMock on port 8080, needs Docker; stop the pipeline's Airflow first, its UI holds 8080).
+
+Deployment: Netlify, configured by `netlify.toml`; see `docs/DEPLOY.md`. `npm run build` needs `VITE_API_BASE_URL` (the CSP in `dist/_headers` is built from its origin) and fails without it. Never deploy or push: the developer does it.
 
 ## Goal
 A small, clean consumer of the data product: browse classes and skills, see PvP damage per skill, estimate the damage of a skill on a target, and see the data quality of the extract. It must work **before the API exists**, against WireMock stubs built from the contract.
@@ -50,7 +52,7 @@ A small, clean consumer of the data product: browse classes and skills, see PvP 
 ## Layout
 ```
 src/
-├─ main.tsx              # composition root: builds the QueryClient, API client and browser router
+├─ main.tsx              # composition root: builds the QueryClient (retryNetworkErrors), API client and browser router
 ├─ App.tsx               # providers (QueryClient, ApiProvider, RouterProvider), all injected
 ├─ router.tsx            # route tree: Layout with the pages as children
 ├─ format.ts             # display of multipliers (2 decimals), ratios (%) and durations (s); "—" for null
@@ -59,6 +61,7 @@ src/
 │  ├─ client.ts           # createClient<paths>({ baseUrl, fetch })
 │  ├─ ApiProvider.tsx     # React context holding the client (tests inject a fake fetch)
 │  ├─ apiContext.ts       # the context and its useApiClient hook
+│  ├─ retry.ts            # queries retry twice on network errors, never on an API problem
 │  └─ queries.ts          # queryOptions factories + mutation hooks, one per operationId
 ├─ features/
 │  ├─ classes/ClassesPage.tsx
@@ -72,6 +75,7 @@ src/
    ├─ renderWithProviders.tsx   # renders through App: QueryClient (retry false) + memory router + fake fetch; renderRoutes for a route tree
    ├─ fakeFetch.ts              # matches requests against the WireMock mappings, serves their fixtures
    └─ fixtures/                 # JSON responses, shared with WireMock (__files)
+config/netlifyHeaders.ts    # builds dist/_headers (CSP from the VITE_API_BASE_URL origin), used by vite.config.ts
 wiremock/mappings/          # one mapping per endpoint, bodyFileName → fixtures
 ```
 Each component has a `*.test.tsx` next to it.
@@ -95,7 +99,7 @@ Each component has a `*.test.tsx` next to it.
 
 ## UI rules
 - Dark theme by default, readable tables, numbers right-aligned with fixed decimals (multipliers 2 decimals, ratios as %).
-- Every query has loading, error (problem `title` + `detail`) and empty states.
+- Every query has loading, error (problem `title` + `detail`) and empty states. `Loading` adds "Waking up the server" after 3 s (the hosted API sleeps when idle).
 - Accessibility: real `<table>`, `<label>` for every input, buttons not divs, focus visible, color never the only signal (badges have text).
 - No business formulas in the front: everything numeric comes from the API.
 
@@ -103,7 +107,7 @@ Each component has a `*.test.tsx` next to it.
 - ClassesPage renders the fixture classes and links to `/classes/mystic`.
 - ClassSkillsPage switches spec tab and updates the URL.
 - SkillDetailPage shows the clauses of 2786 with PvP kept 21.37%.
-- DamageEstimator submits the default form and shows total 2706.32; shows the 422 detail on error.
+- DamageEstimator submits the default form and shows total 1424.25 (variant 1 of Wave Orb III; variant 2 gives 1282.07, never summed, BR-PVP-05); shows the 422 detail on error.
 - DataQualityPage filters by severity and paginates.
 - 404 problem → error state with the problem title.
 
