@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 |---|---|---|---|---|
 | `npm run typecheck` | `npm test` | `npm run lint` | `npm run format:check` | `npm audit` |
 
-Dev server: `npm run dev` (port 5173). Mock: `npm run mock` (WireMock on port 8080, needs Docker).
+Dev server: `npm run dev` (port 5173). Mock: `npm run mock` (WireMock on port 8080, needs Docker; stop the pipeline's Airflow first, its UI holds 8080).
 
 Deployment: Netlify, configured by `netlify.toml`; see `docs/DEPLOY.md`. `npm run build` needs `VITE_API_BASE_URL` (the CSP in `dist/_headers` is built from its origin) and fails without it. Never deploy or push: the developer does it.
 
