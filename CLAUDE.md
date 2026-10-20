@@ -52,7 +52,7 @@ A small, clean consumer of the data product: browse classes and skills, see PvP 
 ## Layout
 ```
 src/
-├─ main.tsx              # composition root: builds the QueryClient (retryNetworkErrors), API client and browser router
+├─ main.tsx              # composition root: builds the QueryClient (retryNetworkErrors), API client and browser router, behind LoginGate
 ├─ App.tsx               # providers (QueryClient, ApiProvider, RouterProvider), all injected
 ├─ router.tsx            # route tree: Layout with the pages as children
 ├─ format.ts             # display of multipliers (2 decimals), ratios (%) and durations (s); "—" for null
@@ -62,12 +62,14 @@ src/
 │  ├─ ApiProvider.tsx     # React context holding the client (tests inject a fake fetch)
 │  ├─ apiContext.ts       # the context and its useApiClient hook
 │  ├─ retry.ts            # queries retry twice on network errors, never on an API problem
+│  ├─ credentials.ts      # temporary fake login constants (public in the bundle), until the product is done
 │  └─ queries.ts          # queryOptions factories + mutation hooks, one per operationId
 ├─ features/
 │  ├─ classes/ClassesPage.tsx
 │  ├─ skills/ClassSkillsPage.tsx  SkillDetailPage.tsx  DamageEstimator.tsx  EstimateForm.tsx  Tooltip.tsx
 │  │         DqStatusBadge.tsx  Fact.tsx  specialAttacks.ts   # shared by the skills pages
 │  ├─ data-quality/DataQualityPage.tsx
+│  ├─ login/LoginGate.tsx  # temporary: login form before the app, remembered in sessionStorage
 │  └─ not-found/NotFoundPage.tsx
 ├─ components/            # only what is shared by 2+ features: Layout, ErrorState, Loading, Badge
 └─ test/
